@@ -1,9 +1,9 @@
 
 //Define Ports LEDs
-const int PIN_LED_1 =  29; // Led rojo trasero izquierdo
-const int PIN_LED_2 =  39; // Led blanco delantero derecho
-const int PIN_LED_3 =  27; // Led rojo trasero derecho
-const int PIN_LED_4 =  37; // Led blanco delantero izquierdo
+const int PIN_LED_1 =  29;
+const int PIN_LED_2 =  38;
+const int PIN_LED_3 =  27;
+const int PIN_LED_4 =  46;
 void menuLEDs(){
 	
 	if (Serial.available()>0){ //We found data!

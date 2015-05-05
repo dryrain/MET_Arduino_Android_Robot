@@ -96,7 +96,7 @@ void setup() {
     menuSelect=0;     
     
   sei();
-  ini_port_acelerometro(); 
+  //ini_port_acelerometro(); 
     
   drawMainMenu();
   

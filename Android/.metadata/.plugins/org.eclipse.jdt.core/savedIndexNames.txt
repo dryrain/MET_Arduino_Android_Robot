@@ -1,4 +1,0 @@
-INDEX VERSION 1.126+D:\PROYECTO GITHUB\MET_Arduino_Android_Robot\Android\.metadata\.plugins\org.eclipse.jdt.core
-1559432927.index
-3574394584.index
-1814631145.index

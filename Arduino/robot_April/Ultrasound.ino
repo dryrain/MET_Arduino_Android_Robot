@@ -1,6 +1,6 @@
 //Define Ports Ultrasounds
-const int trigPin =  49;
-const int echoPin =  48;
+const int trigPin =  25;
+const int echoPin =  24;
 
 void menuUltrasound(){
 	updateUltra();
