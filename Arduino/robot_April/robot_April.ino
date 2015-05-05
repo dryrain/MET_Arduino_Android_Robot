@@ -420,7 +420,7 @@ void interruptCallback(){ //Interrupt time
   timerCounter++; 
   timerCounterfreno++;
  
-  /*switch(menuSelect){     
+  switch(menuSelect){     
      case 1:
 	if (timerCounter==2){ 
 		Escribe_temp();
@@ -448,7 +448,7 @@ void interruptCallback(){ //Interrupt time
     digitalWrite(29, HIGH);
     digitalWrite(27, HIGH);
   }  
-  */
+  
   if (timerCounterfreno==5){ // contamos 5 segundos y si el freno esta activado apagamos el led rojo a los cinco segundos.	
     timerCounterfreno=0;
     //if(freno_timer==true)
