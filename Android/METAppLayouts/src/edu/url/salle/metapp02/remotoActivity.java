@@ -48,13 +48,20 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
     private SensorManager sSensorManager; 
 	private Sensor mAccelerometer;
 	public float angle = 0;
- int estado=0;
- int updown=0;
- int modo=0;
- private TextView text;
- Button Bmodo;
- ImageView freno1,freno2;
- private GestureLibrary libreria;
+	
+	//Variables trama control remoto
+	int velocidad=0; //Tres velocidades 1, 2 ,3, -1, -2, -3 
+	int updown=0; //Dirección
+	int modo=0; //Manual/Automatico
+	char angulo = '3';//Posiciones accel mobil -> 12345 ( 3 = posicion central )
+	char gesturetrigger='N';
+
+	char old_angulo='9';
+	
+	private TextView text;
+	Button Bmodo;
+	ImageView freno1,freno2;
+	private GestureLibrary libreria;
  
 	protected void onCreate(Bundle savedInstanceState) {
 			
@@ -161,77 +168,57 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	                   
 	           }
 	        }});
+		
 		Bled = (ImageButton) findViewById(R.id.button3);
 		Bled.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
-   
             	Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Luces ", Toast.LENGTH_SHORT);
-				toast1.show();
-        	   
-				
+				toast1.show();			
 	       }
-
         });
 		libreria = GestureLibraries.fromRawResource(this, R.raw.gestures);
-
 		if (!libreria.load()) {
 			finish();
 		}
-
 		GestureOverlayView gesturesView = (GestureOverlayView) findViewById(R.id.gestures);
-
-		gesturesView.addOnGesturePerformedListener(this);
-
-		
+		gesturesView.addOnGesturePerformedListener(this);	
 	}
 
 
-	public void frenar() {
-		   
+public void frenar() {
 		//Implementar
-			
-
 }
 	
-	public void luces() {
-		   
+public void luces() {
 		//Implementar
-			
-
 }
 	
 	
-	public void marchas() {
-		   
-		if(estado>=-3 && estado<=3 ){
-		if(updown==0 && estado<3 ){
-			estado=estado+1;
-        	text.setText(""+estado);
-        	
-        	}
-		else if (updown==1 && estado>-3)
-		{
-			estado=estado-1;
-			text.setText(""+estado);
-        	}
+public void marchas() {		   
+	if(velocidad>=-3 && velocidad<=3 ){
+		if(updown==0 && velocidad<3 ){
+			velocidad=velocidad+1;
+	    	text.setText(""+velocidad);
+    	}
 		
-		//sendData();
-        	
-				}	
-
+		else if (updown==1 && velocidad>-3){
+			velocidad=velocidad-1;
+			text.setText(""+velocidad);
+    	}	
+		sendData();
+	}	
 }
 	public void modo() {
 		   
 		if(modo==0 ){
 			Bmodo.setText("Manual");
-        	}
+    	}
 		else 
 		{
 			Bmodo.setText("Automatico");
-        	}
-		
-        	
-				}	
+    	}
+		sendData(); 	
+	}	
 
 
 	
@@ -259,20 +246,26 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 				
 				Toast toast1 =Toast.makeText(getApplicationContext(),"Circulo ", Toast.LENGTH_SHORT);
 				toast1.show();
+				gesturetrigger='C';
 			break;						
 			case 8:
 				Toast toast2 =Toast.makeText(getApplicationContext(),"Cuadrado ", Toast.LENGTH_SHORT);
 				toast2.show();
+				gesturetrigger='S';
 			break;
 			case 9:
 				Toast toast3 =Toast.makeText(getApplicationContext(),"Triangulo ", Toast.LENGTH_SHORT);
 				toast3.show();
+				gesturetrigger='T';
 			break;			
-		}		
+		}	
+		
 	}else{
 		Toast toast4 =Toast.makeText(getApplicationContext(),"No se reconoce ", Toast.LENGTH_SHORT);
-		toast4.show();			
+		toast4.show();		
+		gesturetrigger='N';
 	}	
+	sendData();
 }		
 	
 
@@ -314,41 +307,85 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
          
         float aX = event.values[0]; 
         float aY = event.values[1]; 
-        //float aZ = event.values[2]; 
-        
-       
-
-        
-
+        //float aZ = event.values[2];     
         //this.text6.setText(" "+event.values[2]);
         
         angle = (float) (Math.atan2(aX, aY)/(Math.PI/180));  
+        
+        if (angle <= 100 && angle >= 80){
+			angulo = '1';
+		}else if (angle < 80 &&  angle >= 40 ){
+			angulo = '2';
+		}else if (angle < 40 &&  angle >= 0 ){
+			angulo = '3';
+		}else if (angle < 140 &&  angle > 100 ){
+			angulo = '4';
+		}else if (angle <= 180 &&  angle > 140 ){
+			angulo = '5';
+		}
+        
+        if (angulo!=old_angulo){
+        	sendData();
+        }
+        
+        old_angulo=angulo;
+        
       //  this.text6.setText(" "+angle);
 		System.out.println ("El angulo es " + angle);
-		if(modo==0){
-		if(angle>=80 && angle<=100){
-		sendData(1);
-		}
+		
     }
-    } 
 	
-	public boolean sendData(int entrada){
+	public boolean sendData(){
 		try {
 			final DatagramSocket socket = new DatagramSocket ();
 			InetAddress address;
-			address = InetAddress.getByName ("172.20.10.6");
+			address = InetAddress.getByName ("172.20.10.9");
 			byte[] buf = new byte[256];
-			String s = "C1113MY";
-			switch (entrada){
-			case 1:
-				s = "C1113MY";
-				buf = s.getBytes ();
+			String stemp;
+			
+			
+			
+			switch (velocidad) {
+			case -1:
+				stemp='C'+"400"+angulo;
+				break;
+			case -2:
+				stemp='C'+"500"+angulo;
+				break;
+			case -3:
+				stemp='C'+"600"+angulo;
 				break;
 			default:
-				s = "C2553MY";
-				buf = s.getBytes ();
-			
+				stemp='C'+Integer.toString(velocidad)+"00"+angulo;
+				break;
+			}			
+
+			//Manual/Auto
+			if (modo==0){
+				//'M'
+				stemp=stemp+'M';
+			}else{
+				//'A'
+				stemp=stemp+'A';
 			}
+			
+			//GestureTrigger
+			stemp=stemp+gesturetrigger;
+			System.out.println (stemp);
+        
+			
+			buf = stemp.getBytes ();
+//			String s = "C1113MY";
+//			switch (entrada){
+//			case 1:
+//				s = "C1113MY";
+//				buf = s.getBytes ();
+//				break;
+//			default:
+//				s = "C2553MY";
+//				buf = s.getBytes ();
+//			
+//			}
 			//byte[] buf = new byte[256];
 	       // String s = "C2553MY"; //TESTING
 	        //buf = s.getBytes ();
@@ -383,6 +420,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 		}      
 		return false;
 	}
+	
+	
 	
 	class SocketListener implements Runnable
     {

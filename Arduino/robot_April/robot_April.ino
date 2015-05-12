@@ -141,7 +141,7 @@ if (data != "E"){ //We found something
   Serial.println(turnAngleInt);
   dataRX.turnAngle=turnAngleInt;
   
-  //3)Speed (1char) 1,2,3
+  //3)Speed (1char) 1,2,3,4,5,6
   char speedValue = data[4];
   int speedValueInt = speedValue-'0';
   Serial.print("SpeedValue: ");
@@ -462,10 +462,7 @@ void interruptCallback(){ //Interrupt time
     if (dataRX.dataType == 'C'){
       flagSendUDPControl=true;
       //EscribePuerto("C5104NM2N");
-    }
-    
-    
-    
+    } 
   }
 }
 
