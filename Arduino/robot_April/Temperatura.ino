@@ -1,7 +1,7 @@
 //Define Ports Tª
 const int slaveSelectPin =  40;//revisar 40,41,42
-const int clockPin       =  41;
-const int dataPin        =  39;
+const int clockPin       =  43;
+const int dataPin        =  42;
 float temperatura=0;
 
 void menuSensorTemps(){

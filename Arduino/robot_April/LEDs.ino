@@ -1,9 +1,9 @@
 
 //Define Ports LEDs
 const int PIN_LED_1 =  29;
-const int PIN_LED_2 =  38;
+const int PIN_LED_2 =  39;
 const int PIN_LED_3 =  27;
-const int PIN_LED_4 =  46;
+const int PIN_LED_4 =  37;
 void menuLEDs(){
 	
 	if (Serial.available()>0){ //We found data!
