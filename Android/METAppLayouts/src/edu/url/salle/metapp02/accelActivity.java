@@ -41,7 +41,7 @@ public class accelActivity extends Activity implements SensorEventListener{
         sSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
         mAccelerometer = sSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         
-        x=0;
+        x=1;
         y=0;
         z=0;
       
@@ -101,10 +101,10 @@ public class accelActivity extends Activity implements SensorEventListener{
 
         this.text4.setText(" "+event.values[1]);
 
-        this.text6.setText(" "+event.values[2]);
+        //this.text6.setText(" "+event.values[2]);
         
-        angle = (float) (Math.atan2(aX, aY)/(Math.PI/180)); 
-        
+        angle = (float) (Math.atan2(aX, aY)/(Math.PI/180));  
+        this.text6.setText(" "+angle);
 		System.out.println ("El angulo es " + angle);
         
     } 
