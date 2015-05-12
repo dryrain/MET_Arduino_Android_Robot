@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -27,13 +28,18 @@ import android.widget.Toast;
 
 public class accelActivity extends Activity implements SensorEventListener{
 	int x,y,z;
+	
+	private SensorManager sSensorManager; 
 	private Sensor mAccelerometer;
+	public float angle = 0;
 	  TextView text2,text4,text6;
 	
 	
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.accel);
+        sSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
+        mAccelerometer = sSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         
         x=0;
         y=0;
@@ -59,73 +65,49 @@ public class accelActivity extends Activity implements SensorEventListener{
 		text2 = (TextView) findViewById(R.id.text2);
 		text4 = (TextView) findViewById(R.id.text4);
 		text6 = (TextView) findViewById(R.id.text6);
-        onResume();
+        
 		
 
 }
 	
-	
- 
 
-	protected void onResume()
+	@Override 
+    protected void onResume() { 
+        super.onResume(); 
+        sSensorManager.registerListener(this, mAccelerometer, Sensor.TYPE_ACCELEROMETER); 
+    } 
 
-{
+    @Override 
+    protected void onPause() { 
+        super.onPause(); 
+        sSensorManager.unregisterListener(this, mAccelerometer); 
+    } 
 
-     super.onResume();
+    public void onAccuracyChanged(Sensor sensor, int accuracy) { 
+        // TODO Auto-generated method stub 
+         
+    } 
 
-     SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+    public void onSensorChanged(SensorEvent event) { 
+        // TODO Auto-generated method stub 
+        if (event.sensor != mAccelerometer) 
+            return; 
+         
+        float aX = event.values[0]; 
+        float aY = event.values[1]; 
+        //float aZ = event.values[2]; 
+        
+        this.text2.setText(" "+event.values[0]);
 
-     List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ACCELEROMETER);
+        this.text4.setText(" "+event.values[1]);
 
-     if (sensors.size() > 0) //dispositivo android tiene acelerometro
-
-     {
-
-         sm.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
-
-     }
-
-}
-
-protected void onPause()
-
-{
-
-    SensorManager mSensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
-
-    mSensorManager.unregisterListener(this, mAccelerometer);
-
-    super.onPause();
-
-}
-
-protected void onStop()
-
-{
-
-    SensorManager mSensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
-
-    mSensorManager.unregisterListener(this, mAccelerometer);
-
-    super.onStop();
-
-}
-
-public void onSensorChanged1(SensorEvent event) {
-
-    this.text2.setText("X = "+event.values[SensorManager.DATA_X]);
-
-    this.text4.setText("Y = "+event.values[SensorManager.DATA_Y]);
-
-    this.text6.setText("Z = "+event.values[SensorManager.DATA_Z]);
-
-}
-
-@Override
-public void onAccuracyChanged(Sensor sensor, int accuracy) {   
-
-}
-
+        this.text6.setText(" "+event.values[2]);
+        
+        angle = (float) (Math.atan2(aX, aY)/(Math.PI/180)); 
+        
+		System.out.println ("El angulo es " + angle);
+        
+    } 
 
 
 	public void volver(View view) {
@@ -139,11 +121,6 @@ startActivity(intent);
 
 
 
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	
 	
@@ -216,6 +193,8 @@ startActivity(intent);
                 }
           }
     }
+
+
 	
 	
 }
