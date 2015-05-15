@@ -18,6 +18,9 @@
 const char IPSend[] = "172.20.10.13";
 //const int sendPort = 55056;
 const int sendPort = 4560;
+//const char* WIFIName = "AndroidJordi";
+//const char* WIFIPass ="sergisergi";
+
 const char* WIFIName = "IphonePA";
 const char* WIFIPass ="sable1992";
 
@@ -46,7 +49,7 @@ boolean getInfrared = false;
 struct  Tramas{
   byte numero; //número de trama.
   byte cabecera; //identifica la acción a realizar (1-avanzar, 2-retroceder...)
-  byte datos[8]; //guarda los datos de la acción (ejemplo velociad, dirección...)
+  byte datos[9]; //guarda los datos de la acción (ejemplo velociad, dirección...)
   bool activa;   //indica si la trama está en el buffer (1- está en el buffer, 0- ya ha sido leida)
 };
 
@@ -56,12 +59,18 @@ struct WifiRx{
  int  speedValue;
  char manualAuto;
  char gestureTrigger;
+ char luces;
 };
 WifiRx dataRX; //Declare a struct used to hold received data
 
 //Variables de memoria de direccion, distancia, velocidad y angulo
-int aux_distancia=20; //distancia en cm
+int aux_distancia=2; //distancia en cm
 int aux_velocidad=3;  //0-stop, 2-media y 3-alta
+int velocidad=30;
+int velocidad2;
+int direc=0;
+int angulo=300;
+
 int aux_angulo=45;    //angulo en grados
 int aux_direccion=0;  // 0- Izquierda y 1-derecha
 float aux_temperatura; // temeperatura recogida del sensor
@@ -109,7 +118,7 @@ void loop() {
 #ifdef ENTREGA_5 //Wifi protocol Arduino & Android
 char* data;
 data = readUDP();
-if (data != "E"){ //We found something
+if (data != "E" && !bloqueo_wifi){ //We found something
   
   Serial.print("Data: ");
   Serial.println(data);
@@ -134,31 +143,38 @@ if (data != "E"){ //We found something
   Serial.println(dataType);
   dataRX.dataType=dataType;
   
-  //2)Turn angle (3chars)
-  char turnAngle[3] = {data[1],data[2],data[3]};
-  int turnAngleInt = atoi(turnAngle);
-  Serial.print("Turn: ");
-  Serial.println(turnAngleInt);
-  dataRX.turnAngle=turnAngleInt;
-  
-  //3)Speed (1char) 1,2,3,4,5,6
-  char speedValue = data[4];
+  //2)Speed (1char) 1,2,3,4,5,6
+  char speedValue = data[1];
   int speedValueInt = speedValue-'0';
   Serial.print("SpeedValue: ");
   Serial.println(speedValueInt);
   dataRX.speedValue=speedValueInt;
   
+  //3)Turn angle (1chars) 54123
+  char turnAngle= data[2];
+  int turnAngleInt = turnAngle-'0';
+  Serial.print("Turn: ");
+  Serial.println(turnAngleInt);
+  dataRX.turnAngle=turnAngleInt;
+  
   //4)Manual/Auto (Manual == 'M' , Auto == A)
-  char manualOrAuto = data[5];
+  char manualOrAuto = data[3];
   Serial.print("Manual/Auto: ");
   Serial.println(manualOrAuto);
   dataRX.manualAuto=manualOrAuto;
   
-  //5)Gesture triggered (Yes == Y , No == N)
-  char gestureTrigger = data[6];
+  //5)Gesture triggered (Yes == Y , No == N ,C == Circle, S == Square, T == Triangle)
+  char gestureTrigger = data[4];
   Serial.print("Gesture Triggered: ");
   Serial.println(gestureTrigger); 
   dataRX.gestureTrigger=gestureTrigger; 
+  
+  //5)Lights activate (Yes == Y , No == N)
+  char luces = data[5];
+  Serial.print("Luces: ");
+  Serial.println(luces); 
+  dataRX.luces=luces; 
+  
   
   //dataRX UPDATED!!!
   
@@ -169,6 +185,62 @@ if (data != "E"){ //We found something
   switch (dataRX.dataType){ //Reply control data
     case 'C':
     //Will be handled during interrupt
+    
+    
+    if (dataRX.manualAuto=='A'){ //The robot is moving on his own
+        
+        //menuSelect=20; //AutoMovement function      
+      
+    }else{ //Detect Manual inputs
+      
+      
+      //Gesture detected
+      if (dataRX.gestureTrigger=='C'){
+        menuSelect=13;
+      }else if (dataRX.gestureTrigger=='S'){
+        menuSelect=12;
+      }else if (dataRX.gestureTrigger=='T'){
+        menuSelect=11;
+      }else if(dataRX.speedValue==0){
+      menuSelect=16;
+      }else if(dataRX.speedValue==1){
+      menuSelect=15;
+      velocidad=30;
+      }else if(dataRX.speedValue==2){
+      menuSelect=15;
+      velocidad=50;
+      }else if(dataRX.speedValue==3){
+      menuSelect=15;
+      velocidad=70;
+      }
+      else if(dataRX.speedValue==4){
+      menuSelect=17;
+      velocidad=30;
+      }else if(dataRX.speedValue==5){
+      menuSelect=17;
+      velocidad=50;
+      }else if(dataRX.speedValue==6){
+      menuSelect=17;
+      velocidad=70;
+      }
+      if(dataRX.turnAngle==2){
+      menuSelect=18;
+      velocidad2=3;
+      angulo=33;
+      
+      }
+      
+      //Giro
+      //Velocidad
+      //Freno
+      
+      
+      
+    }
+    
+    
+    
+    
     
    break;
   
@@ -379,9 +451,9 @@ if(flagSendUDPControl){
                 if(triangulo(aux_velocidad,aux_distancia)){ 
                   menuSelect=0;  // si ha acabado la acción vuelve al menú principal        
                   freno=true;
-                  bloqueo_wifi=true;
-                }else{
                   bloqueo_wifi=false;
+                }else{
+                  bloqueo_wifi=true;
                 }
      break; 
      case 12: // Mover en forma de  cuadrado             
@@ -389,9 +461,9 @@ if(flagSendUDPControl){
                   menuSelect=0;   // si ha acabado la acción vuelve al menú principal
                   
                   freno=true;
-                  bloqueo_wifi=true;
-                }else{
                   bloqueo_wifi=false;
+                }else{
+                  bloqueo_wifi=true;
                 }
                     
      break; 
@@ -399,9 +471,9 @@ if(flagSendUDPControl){
                 if(circunferencia()){ 
                    menuSelect=0;   // si ha acabado la acción vuelve al menú principal       
                    freno=true;
-                bloqueo_wifi=true;
+                bloqueo_wifi=false;
                 }else{
-                  bloqueo_wifi=false;
+                  bloqueo_wifi=true;
                 }   
      break; 
      case 14: // gira             
@@ -410,8 +482,38 @@ if(flagSendUDPControl){
                   
                    freno=true;
                 }
-     break;     
-    }       
+     break;    
+    case 15:
+                 adelante(velocidad);
+                   menuSelect=0;
+                   freno=true;
+                 
+                
+     break;
+     case 16:
+                 parar();
+                     menuSelect=0;
+                     freno=true;
+                  
+     break;
+     case 17:
+                 atras(velocidad);
+                     menuSelect=0;
+                     freno=true;
+                  
+     break;
+     case 18:
+                     
+                if(gira(direc,velocidad,angulo)){
+                   menuSelect=0;   // si ha acabado la acción vuelve al menú principal       
+                   freno=true;
+                }
+                  
+     break;
+     case 20:
+              
+     break;
+              }       
 }
 
 

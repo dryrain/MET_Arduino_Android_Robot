@@ -4,6 +4,7 @@ int estado_adel=0; // maquina de estados de la función adelante_dist.
 int estado_atras=0; // maquina de estados de la función atras_dist.
 int estado_giro=0; // maquina de estado de giro
 int estado_circ=0; // maquina de estado de circulo
+int estado_mov_autom=0;
 
 unsigned long timer_1; // temporizado adelante y atras
 unsigned long timer_4; // temporizado giro.
@@ -269,8 +270,7 @@ bool circunferencia(void){
         estado_circ=1;       
         return false;
      break;
-     case 1:        
-          
+     case 1:              
           moverServo(mLEFT,90);
           moverServo(mRIGHT,15);           
           if(timer_5>(timer_6+14000)){
@@ -283,6 +283,14 @@ bool circunferencia(void){
       break;        
     }
    
+}
+
+
+bool autoMovement(){
+  unsigned long timer_5=millis();
+  switch (estado_mov_autom){
+    
+  }
 }
 
 

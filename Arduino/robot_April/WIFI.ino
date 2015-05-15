@@ -123,17 +123,17 @@ void sendControlUDP(){
   String str = String(temp);
   dataTX[1]=str[0];
   dataTX[2]=str[1];
-  dataTX[3]=str[2];
+  //dataTX[3]=str[2];
   
   str = String(LEDs); 
   //dataTX[4]=str.toCharArray(b,1);
-  dataTX[4]=str[0];
-  dataTX[5]=colision;
-  dataTX[6]=manualAuto;
+  dataTX[3]=str[0];
+  dataTX[4]=colision;
+  dataTX[5]=manualAuto;
   str = String(speedValue);
-  dataTX[7]=str[0];
-  dataTX[8]=proximity;
-  dataTX[9]='\0';//End
+  dataTX[6]=str[0];
+  dataTX[7]=proximity;
+  dataTX[8]='\0';//End
   
   Serial.print("Data Sent: ");
   Serial.println(dataTX);
