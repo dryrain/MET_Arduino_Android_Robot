@@ -88,7 +88,7 @@
                 android:layout_alignBottom="@+id/button6"
                 android:layout_toRightOf="@+id/button6"
                 android:gravity="center"
-                android:text="1"
+                android:text="0"
                 android:textSize="30sp" />
 
             <ImageButton

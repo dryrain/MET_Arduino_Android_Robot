@@ -48,6 +48,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
     private SensorManager sSensorManager; 
 	private Sensor mAccelerometer;
 	public float angle = 0;
+	int oldSpeed;
 	
 	//Variables trama control remoto
 	int velocidad=0; //Tres velocidades 1, 2 ,3, -1, -2, -3 
@@ -55,6 +56,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	int modo=0; //Manual/Automatico
 	char angulo = '3';//Posiciones accel mobil -> 12345 ( 3 = posicion central )
 	char gesturetrigger='N';
+	char activateLED ='N';
 
 	char old_angulo='9';
 	
@@ -144,13 +146,16 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Bfreno = (ImageButton) findViewById(R.id.button5);
 		Bfreno.setOnTouchListener(new OnTouchListener() {
 	        public boolean onTouch(View v, MotionEvent event) {
-
+	        	
+	        	
+	        	
 	           switch (event.getAction())
 	           {
 	           case MotionEvent.ACTION_DOWN:
                {
             	   freno1.setBackgroundColor(0xFF3333FF);
             	   freno2.setBackgroundColor(0xFF3333FF);
+            	   frenar();
                    return true;
                }
 
@@ -158,6 +163,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
                {
             	   freno1.setBackgroundColor(0xFFFFFFF);
             	   freno2.setBackgroundColor(0xFFFFFFF);
+            	   arrancar();
                    return true;
                }
 
@@ -173,7 +179,8 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Bled.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
             	Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Luces ", Toast.LENGTH_SHORT);
-				toast1.show();			
+				toast1.show();	
+				luces();
 	       }
         });
 		libreria = GestureLibraries.fromRawResource(this, R.raw.gestures);
@@ -187,10 +194,27 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 
 public void frenar() {
 		//Implementar
+	oldSpeed = velocidad;
+	velocidad=0;
+	sendData();
 }
+
+
+public void arrancar() {
+	//Implementar
+	velocidad=oldSpeed;
+	sendData();
+}
+
 	
 public void luces() {
-		//Implementar
+		//Implementar	
+		if (activateLED=='N'){
+			activateLED='Y';	
+		}else{
+			activateLED='N';
+		}
+		sendData();
 }
 	
 	
@@ -340,23 +364,22 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			final DatagramSocket socket = new DatagramSocket ();
 			InetAddress address;
 			address = InetAddress.getByName ("172.20.10.9");
+			//address = InetAddress.getByName ("192.168.43.214");
 			byte[] buf = new byte[256];
 			String stemp;
-			
-			
-			
+					
 			switch (velocidad) {
 			case -1:
-				stemp='C'+"400"+angulo;
+				stemp='C'+"4"+angulo;
 				break;
 			case -2:
-				stemp='C'+"500"+angulo;
+				stemp='C'+"5"+angulo;
 				break;
 			case -3:
-				stemp='C'+"600"+angulo;
+				stemp='C'+"6"+angulo;
 				break;
 			default:
-				stemp='C'+Integer.toString(velocidad)+"00"+angulo;
+				stemp='C'+Integer.toString(velocidad)+angulo;
 				break;
 			}			
 
@@ -370,9 +393,12 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			}
 			
 			//GestureTrigger
-			stemp=stemp+gesturetrigger;
+			stemp=stemp+gesturetrigger+activateLED;
+			
+			//Reset gesture detected
+			gesturetrigger='N';
+			
 			System.out.println (stemp);
-        
 			
 			buf = stemp.getBytes ();
 //			String s = "C1113MY";
