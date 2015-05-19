@@ -12,8 +12,8 @@
 
 
 //const IPAddress IPSend (170,20,10,13);
-const char IPSend[] = "192.168.0.194";
-const int sendPort = 55056;
+//const char IPSend[] = "192.168.0.194";
+//const int sendPort = 55056;
 //const int sendPort = 4560;
 //const char* WIFIName = "AndroidJordi";
 //const char* WIFIPass ="sergisergi";
@@ -237,6 +237,12 @@ if (data != "E" && !bloqueo_wifi){ //We found something
     case 'A': //Reply with accel data
     
          sendAccelUDP();
+   break; 
+   case 'X': //Reply with accel data
+    mover(0,1);
+    menuSelect=0;
+    
+        
    break; 
   }
   

@@ -4,7 +4,8 @@ WiFiUDP Udpread;
 //unsigned int readPort = 2390;      // puerto local para leer datos
 unsigned int readPort = 55056; 
 char packetBuffer[255]; //buffer to hold incoming packet
-
+const char IPSend[] = "192.168.43.146";
+const int sendPort = 4560 ;
 void ini_WIFI_WPA(char *c_ssid, char *c_pass){  
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -121,6 +122,7 @@ void sendControlUDP(int temp,int luces,int colision,char manualAuto,int speedVal
  
   //Starting TX protocol
   dataTX[0]='C'; //Data Type Control
+  
   String str = String(temp);
   dataTX[1]=str[0];
   dataTX[2]=str[1];
@@ -150,8 +152,8 @@ void sendControlUDP(int temp,int luces,int colision,char manualAuto,int speedVal
   Udpread.beginPacket(IPSend, sendPort); //Android Jordi UNI
   //Udpread.beginPacket(IPRx, PortRx); //Android Jordi UNI
   //Udpread.beginPacket(Udpread.remoteIP(), Udpread.remotePort());
-  //Udpread.write(dataTX,sizeof(dataTX));
-  Udpread.write("Hola");
+  Udpread.write(dataTX,sizeof(dataTX));
+ // Udpread.write("Hola");
   Udpread.endPacket(); 
   
   
