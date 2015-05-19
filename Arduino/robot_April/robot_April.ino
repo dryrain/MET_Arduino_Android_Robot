@@ -134,7 +134,7 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   
   
   //Parsing the string -------------------------------
-  //1) Type ( C - control, L - Laberynt, A - Accel , X - STOP)
+  //1) Type ( C - control, L - Laberynt, A - Accel , X - STOP,M -Menu)
   char dataType = data[0];
   Serial.print("Type: ");
   Serial.println(dataType);
@@ -237,10 +237,21 @@ if (data != "E" && !bloqueo_wifi){ //We found something
     case 'A': //Reply with accel data
     
          sendAccelUDP();
+         menuSelect=2;
    break; 
    case 'X': //Reply with accel data
     mover(0,1);
+    menuSelect=1;
+    dataType='M';
+    
+    
+        
+   break; 
+   case 'M': //Reply with accel data
+    
     menuSelect=0;
+    dataType='M';
+    
     
         
    break; 
@@ -297,7 +308,11 @@ if(flagSendUDPControl){
                        
       break;
      case 2: // modo acelerometro
-		   
+     
+		//Serial.println("Esto no funciona");  
+                  startGetAccel();
+                  Lee_aceleracion();
+                  Escribe_aceleracion();
       break;
      case 3: // modo laberinto
 		      
