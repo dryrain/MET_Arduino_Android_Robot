@@ -33,20 +33,9 @@ void draw(){
 
 void drawMainMenu(){
  Serial.println("Main Menu:");
- Serial.println("1 -- Sensor de Temperatura");
- Serial.println("2 -- Sensor de Aceleracion");
- Serial.println("3 -- Sensor de Ultrasonidos");
- Serial.println("4 -- Sensor de Infrarojos");
- Serial.println("5 -- Motor Derecho");
- Serial.println("6 -- Motor Izquierdo");
- Serial.println("7 -- Motor 180 grados");
- Serial.println("8 -- LED's");
- Serial.println("a -- Adelante");
- Serial.println("b -- Atras");
- Serial.println("c -- Triangulo");
- Serial.println("d -- Cuadrado");
- Serial.println("e -- Circulo");
-
+ Serial.println("1 -- Modo automatico");
+ Serial.println("2 -- Reto acelerometro");
+ Serial.println("3 -- Laberinto");
 }
 
 

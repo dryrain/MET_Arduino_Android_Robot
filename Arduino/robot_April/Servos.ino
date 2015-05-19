@@ -150,7 +150,7 @@ void ini_port_servo_Right(void)
 void ini_port_servo_Head(void)
 {
    servoHead.attach(portServoHead);
-   servoHead.write(90);
+   servoHead.write(95);
 }
 
 void reset_port_servo_Left(void)

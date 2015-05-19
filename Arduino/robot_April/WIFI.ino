@@ -105,19 +105,20 @@ char *readUDP(void){  // Escuchamos el puerto y devolvemos toda la trama en form
 }
 
 
-void sendControlUDP(){
+void sendControlUDP(int temp,int luces,int colision,char manualAuto,int speedValue){
   //Data to send: temp,LEDs,colision,manual/auto,speed,proximity
   //Udpread.beginPacket("192.168.1.34", 4560); //Android Jordi Casa
   
   char dataTX[10];
-  
+  /*
   int temp = (int)Lee_temperatura();//Casting from float
   int LEDs = updateLEDs();
   char colision = 'N';    //char colision = getColisionStatus();
   char manualAuto = 'M';  //char manualAuto = getManualAutoStatus();
-  int speedValue = 2;     //int speedValue = getSpeedValue();
+  int speedValue = 2;     //int speedValue = getSpeedValue();*/
   char proximity = 'N';   //char proximity = getProximityStatus();
   
+ 
   //Starting TX protocol
   dataTX[0]='C'; //Data Type Control
   String str = String(temp);
@@ -125,10 +126,12 @@ void sendControlUDP(){
   dataTX[2]=str[1];
   //dataTX[3]=str[2];
   
-  str = String(LEDs); 
+ // str = String(Luces); 
   //dataTX[4]=str.toCharArray(b,1);
-  dataTX[3]=str[0];
-  dataTX[4]=colision;
+  dataTX[3]=luces;
+  str = String(colision);
+  dataTX[4]=str[0];
+  
   dataTX[5]=manualAuto;
   str = String(speedValue);
   dataTX[6]=str[0];

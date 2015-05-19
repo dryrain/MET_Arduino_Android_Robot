@@ -24,6 +24,88 @@ void parar(void){
 
 }
 
+//Mover robot
+void mover(int velocidad, int giro)
+{
+ /* Serial.print("velocidad:.............................");
+  Serial.println(velocidad);
+  Serial.print("giro:..................................");
+  Serial.println(giro);*/
+  int velocidad_derch=0;
+  int velocidad_izq=0;
+  switch (velocidad){ //Maquina de estados
+     case 0:  
+        velocidad_derch=0;
+        velocidad_izq=0;
+     break;
+     case 1:  
+        velocidad_derch=19;
+        velocidad_izq=16;
+        
+     break;
+     case 2:  
+        velocidad_derch=29;
+        velocidad_izq=25;
+     break;
+     case 3:
+       if(giro==1){  
+              velocidad_derch=90;
+              velocidad_izq=90;
+       }else if(giro==2){
+              velocidad_derch=25;
+              velocidad_izq=90;
+       }else if(giro==3){
+              velocidad_derch=15;
+              velocidad_izq=90;
+       }else if(giro==4){
+              velocidad_derch=90;
+              velocidad_izq=25;
+       }else if(giro==5){
+              velocidad_derch=90;
+              velocidad_izq=15; 
+       }else if(giro==6){
+              velocidad_derch=-40;
+              velocidad_izq=90; 
+       }else if(giro==7){
+              velocidad_derch=90;
+              velocidad_izq=-40; 
+       }                     
+     break;
+     case 4:  
+        velocidad_derch=-15;
+        velocidad_izq=-20;
+     break;
+     case 5:  
+        velocidad_derch=-25;
+        velocidad_izq=-29;
+     break;
+     case 6:  
+        if(giro==1){  
+              velocidad_derch=-90;
+              velocidad_izq=-90;
+       }else if(giro==2){
+              velocidad_derch=-90;
+              velocidad_izq=-25;
+       }else if(giro==3){
+              velocidad_derch=-90;
+              velocidad_izq=-15;
+       }else if(giro==4){
+              velocidad_derch=-25;
+              velocidad_izq=-90;
+       }else if(giro==5){
+              velocidad_derch=-15;
+              velocidad_izq=-90; 
+       }       
+     break;
+     
+   }
+    moverServo(mLEFT,velocidad_izq);
+    moverServo(mRIGHT,velocidad_derch);
+  
+
+}
+  
+
 //Mover los dos motores a la vez para ir hacia adelante.
 void adelante(int velocidad)
 {

@@ -10,19 +10,16 @@
 #define WIFI_ACTIVE
 #define TESTING_AREA
 
-//#define ENTREGA_4
-#define ENTREGA_5
-
 
 //const IPAddress IPSend (170,20,10,13);
-const char IPSend[] = "172.20.10.13";
-//const int sendPort = 55056;
-const int sendPort = 4560;
+const char IPSend[] = "192.168.0.194";
+const int sendPort = 55056;
+//const int sendPort = 4560;
 //const char* WIFIName = "AndroidJordi";
 //const char* WIFIPass ="sergisergi";
 
-const char* WIFIName = "IphonePA";
-const char* WIFIPass ="sable1992";
+const char* WIFIName = "vodafoneED7E";
+const char* WIFIPass ="SCCDDUPITP6BBM";
 
 //byte IP[4]={170,20,10,12};
 IPAddress IPRx;
@@ -62,6 +59,19 @@ struct WifiRx{
  char luces;
 };
 WifiRx dataRX; //Declare a struct used to hold received data
+struct EstadoRobot{
+ char dataType ='C';  // tipo de de trama
+ int temp = 10;       // temperatura del robot
+ char luces = 'N';      // Luces delanteras encendidas: Y(yes) o N(no)
+ int colision = 0; // detecta si hay colisión delantera o trasera: 0(no hay), 1(colisión delantera), 2(colisión trasera izq.) y 3(colisión trasera derch.)
+ char manualAuto ='M';// Tipo de modo: M(manual) y A(automático)
+ int speedValue =0;   // Velocidad del robot: 0 (parado), 1, 2, 3 (hacia delante) y 4, 5, 6 (hacia atrás)
+ int  turnAngle=1;    // Giro del robot: 1 (recto), 2 (der. lento), 3(der. rápido), 4 (izq. lento) y 3(izq. rápido).
+ int velocidad_auto=0;
+};
+EstadoRobot Estado; // Estructura donde se almacena los datos a enviar al teléfono.
+bool cercano=false;  //True: obstaculo cerca, false no hay obstaculo
+bool girando=false; // True:indica que está girando. False:
 
 //Variables de memoria de direccion, distancia, velocidad y angulo
 int aux_distancia=2; //distancia en cm
@@ -97,13 +107,14 @@ void setup() {
     ini_port_servo_Left();
     ini_port_servo_Head();
     
-    
-   //ini_WIFI_WPA("vodafoneED7E","SCCDDUPITP6BBM"); //conectamos wifi
+    ini_WIFI_WPA("hola","adiosadios"); //conectamos wifi
+  // ini_WIFI_WPA("vodafoneED7E","SCCDDUPITP6BBM"); //conectamos wifi
    //ini_WIFI_WPA("Dryrain","sibemolsibemo");
-   ini_WIFI_WPA("IphonePA","sable1992");
+  // ini_WIFI_WPA("IphonePA","sable1992");
     //Ini Menu
     menuSelect=0;     
-    
+    char manualoAuto = 'M';        //inicializamos el estado inicial como manual
+    Estado.manualAuto=manualoAuto; //inicializamos el estado inicial como manual
   sei();
   ini_port_acelerometro(); 
     
@@ -114,26 +125,12 @@ void setup() {
 void loop() {
 
 
-  
-#ifdef ENTREGA_5 //Wifi protocol Arduino & Android
 char* data;
 data = readUDP();
 if (data != "E" && !bloqueo_wifi){ //We found something
   
   Serial.print("Data: ");
   Serial.println(data);
-  
-  //Serial.print("Lenght: ");
-  //Serial.println(sizeof data); // DOES NOT WORK
-  
-//  Serial.println("Printing all: ");
-//  Serial.println(data[0]);
-//  Serial.println(data[1]);
-//  Serial.println(data[2]);
-//  Serial.println(data[3]);
-//  Serial.println(data[4]);
-//  Serial.println(data[5]);
-//  Serial.println(data[6]);
   
   
   //Parsing the string -------------------------------
@@ -142,26 +139,27 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   Serial.print("Type: ");
   Serial.println(dataType);
   dataRX.dataType=dataType;
-  
+  Estado.dataType=dataType;
   //2)Speed (1char) 1,2,3,4,5,6
   char speedValue = data[1];
   int speedValueInt = speedValue-'0';
   Serial.print("SpeedValue: ");
   Serial.println(speedValueInt);
   dataRX.speedValue=speedValueInt;
-  
+  Estado.speedValue=speedValueInt;
   //3)Turn angle (1chars) 54123
   char turnAngle= data[2];
   int turnAngleInt = turnAngle-'0';
   Serial.print("Turn: ");
   Serial.println(turnAngleInt);
   dataRX.turnAngle=turnAngleInt;
-  
+  Estado.turnAngle=turnAngleInt;
   //4)Manual/Auto (Manual == 'M' , Auto == A)
   char manualOrAuto = data[3];
   Serial.print("Manual/Auto: ");
   Serial.println(manualOrAuto);
   dataRX.manualAuto=manualOrAuto;
+ 
   
   //5)Gesture triggered (Yes == Y , No == N ,C == Circle, S == Square, T == Triangle)
   char gestureTrigger = data[4];
@@ -174,7 +172,7 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   Serial.print("Luces: ");
   Serial.println(luces); 
   dataRX.luces=luces; 
-  
+  Estado.luces=luces;  
   
   //dataRX UPDATED!!!
   
@@ -184,75 +182,61 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   //Do whatever is needed to ...
   switch (dataRX.dataType){ //Reply control data
     case 'C':
-    //Will be handled during interrupt
-    
-    
-    if (dataRX.manualAuto=='A'){ //The robot is moving on his own
+        //Will be handled during interrupt
+        if (dataRX.manualAuto=='A'){ //The robot is moving on his own
+           //manualOrAuto=Estado.manualAuto;
+           if(Estado.manualAuto=='M'){// primera vez que se activa el modo
+              Estado.manualAuto='A';
+              flagSendUDPControl=true; // enviamos trama indicando el cambio a estado automático
+              if(Estado.speedValue!=0){// guardamos la velocidad por del modo manual para utilizar en modo automático
+                Estado.velocidad_auto=Estado.speedValue; 
+              }else{ //si está parado le asignamos una velocidad de automático de 1.
+                Estado.velocidad_auto=1; 
+              }
+            }
+            menuSelect=1; //AutoMovement function  
+        }else if(dataRX.manualAuto=='M') { //Detect Manual inputs
+          menuSelect=4; // activamos el movimiento
+          if(Estado.manualAuto=='A'){// primera vez que se activa el modo
+             Estado.manualAuto='M';
+             flagSendUDPControl=true; // enviamos trama indicando el cambio a estado Manual
+          }
+          
+          //Gesture detected
+          if (dataRX.gestureTrigger=='C'){
+            menuSelect=5;
+          }else if (dataRX.gestureTrigger=='S'){
+            menuSelect=6;
+          }else if (dataRX.gestureTrigger=='T'){
+            menuSelect=7;
+          }else
+          {
+                
+            
+           //movimiento
+            
+       
+          }
+         
+          //Giro
+          //Velocidad
+          //Freno
+         
+       }
+            
         
-        //menuSelect=20; //AutoMovement function      
-      
-    }else{ //Detect Manual inputs
-      
-      
-      //Gesture detected
-      if (dataRX.gestureTrigger=='C'){
-        menuSelect=13;
-      }else if (dataRX.gestureTrigger=='S'){
-        menuSelect=12;
-      }else if (dataRX.gestureTrigger=='T'){
-        menuSelect=11;
-      }else if(dataRX.speedValue==0){
-      menuSelect=16;
-      }else if(dataRX.speedValue==1){
-      menuSelect=15;
-      velocidad=30;
-      }else if(dataRX.speedValue==2){
-      menuSelect=15;
-      velocidad=50;
-      }else if(dataRX.speedValue==3){
-      menuSelect=15;
-      velocidad=70;
-      }
-      else if(dataRX.speedValue==4){
-      menuSelect=17;
-      velocidad=30;
-      }else if(dataRX.speedValue==5){
-      menuSelect=17;
-      velocidad=50;
-      }else if(dataRX.speedValue==6){
-      menuSelect=17;
-      velocidad=70;
-      }
-      if(dataRX.turnAngle==2){
-      menuSelect=18;
-      velocidad2=3;
-      angulo=33;
-      
-      }
-      
-      //Giro
-      //Velocidad
-      //Freno
-      
-      
-      
-    }
-    
-    
-    
-    
-    
+        
    break;
   
     case 'L': // Reply with laberynth data
     
-     sendLaberynthUDP();
+         sendLaberynthUDP();
    
    break;
   
     case 'A': //Reply with accel data
     
-     sendAccelUDP();
+         sendAccelUDP();
    break; 
   }
   
@@ -260,144 +244,34 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   //-------------------------- 
 }
 
+if (dataRX.dataType=='C'){
+  if (dataRX.luces!=Estado.luces){ //comprueba si hay cambio de las luces delanteras.
+                  Estado.luces=luz_cruce(); //Activa o desactiva la luz delantera
+                  flagSendUDPControl=true; // enviamos trama indicando el estado de la luz delantera
+  }   
+  if(Lee_ultrasonidos()<20){
+    
+     if(cercano){
+       flagSendUDPControl=true; // enviamos trama indicando la posible colisión delantera 
+       Estado.colision=1;
+       cercano=false;    
+       Serial.println("blouqeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+     }  
+       girando=true; 
+  }else{
+  //--------------->Poner else if con las lecturas de las colisiones traseras y delanteras                
+     if(!cercano){
+       flagSendUDPControl=true; // enviamos trama indicando la posible colisión delantera   
+       Estado.colision=0;
+       cercano=true;
+     }  
+        
+  }
+}
 if(flagSendUDPControl){
-  sendControlUDP();
+  sendControlUDP(Estado.temp,Estado.luces,Estado.colision,Estado.manualAuto,Estado.speedValue);
   flagSendUDPControl=false;
 }
-
-
-#endif //ENTREGA_5
-
-
- // char* prova = LeeTramaChar();
-  //if (prova!=""){
-     //Serial.print("TramaChar:");
-    // Serial.println(prova);
- // }
-    
-    
-#ifdef ENTREGA_4
-  struct Tramas Paquete=LeeTrama(); //Leemos el puerto por si hay paquete recibido de la WIFI.    
-      
-  if (Paquete.activa && !bloqueo_wifi){   
-      Serial.print("Cabecera:");
-      Serial.println(Paquete.cabecera);
-      Serial.print("Datos:");
-      Serial.println(Paquete.datos[1]);
-    
-//Menú de la accion recivida por el wifi.
-     switch(Paquete.cabecera){ // verificamos la cabecera del paquete recibido para realizar la acción sobre el ROBOT
-       case 1: //función Avanzar
-          // Ir a función
-          
-            Serial.print("Avanzar: ");
-            Serial.print(Paquete.datos[1]);
-            Serial.print("cm a velocidad: ");
-            if(Paquete.datos[0]==2){
-              Serial.print("Media");
-            }else if (Paquete.datos[0]==3){
-              Serial.print("Alta");
-            }else{Serial.print("ERROR");}
-            aux_distancia=Paquete.datos[1]; //Guardamos el dato distancia recibida en el paquete en la variable auxiliar
-            aux_velocidad=Paquete.datos[0]; //Guardamos la velocidad recibida de el paquete en la variable auxiliar
-            menuSelect=9;  
-             
-          break;
-       case 2: //función Retroceder
-  	  // Ir a función  
-            Serial.print("Retroceder: ");
-            Serial.print(Paquete.datos[1]);
-            Serial.print("cm a velocidad: ");
-            if(Paquete.datos[0]==2){
-              Serial.print("Media");
-            }else if (Paquete.datos[0]==3){
-              Serial.print("Alta");
-            }else{Serial.print("ERROR");}
-            aux_distancia=Paquete.datos[1]; //Guardamos el dato distancia recibida en el paquete en la variable auxiliar
-            aux_velocidad=Paquete.datos[0]; //Guardamos la velocidad recibida de el paquete en la variable auxiliar
-            menuSelect=10;   
-          break;
-       case 3: //función GrioDerecha
-  	  // Ir a función   
-            Serial.println("Girar a la derecha al angulo: ");  
-            Serial.print(Paquete.datos[1]);
-            Serial.print("º y a la velocidad: ");
-            if(Paquete.datos[0]==2){
-              Serial.print("Media");
-            }else if (Paquete.datos[0]==3){
-              Serial.print("Alta");
-            }else{Serial.print("ERROR");}
-            aux_angulo=Paquete.datos[1]; //Guaramos el dato del angulo recibido en el paquete en la variable auxiliar
-            aux_velocidad=Paquete.datos[0]; //Guardamos la velocidad recibida de el paquete en la variable auxiliar
-            aux_direccion=1; //gira a la derecha
-            menuSelect=14;    
-          break;
-       case 4: //función GrioIzquierda
-  	  // Ir a función  
-            Serial.println("Girar a la izquierda al angulo: ");  
-            Serial.print(Paquete.datos[1]);
-            Serial.print("º y a la velocidad: ");
-            if(Paquete.datos[0]==2){
-              Serial.print("Media");
-            }else if (Paquete.datos[0]==3){
-              Serial.print("Alta");
-            }else{Serial.print("ERROR");}
-            aux_angulo=Paquete.datos[1]; //Guaramos el dato del angulo recibido en el paquete en la variable auxiliar
-            aux_velocidad=Paquete.datos[0]; //Guardamos la velocidad recibida de el paquete en la variable auxiliar
-            aux_direccion=0; //gira a la izquierda
-            menuSelect=14;     
-          break;
-       case 5: //función Redonda     
-          // Ir a función
-            Serial.println("Redonda"); 
-            menuSelect=13;
-          break;
-       case 6: //función Cuadrado
-          // Ir a función
-            Serial.println("cuadrado de "); 
-            Serial.print(Paquete.datos[1]);
-            Serial.print("cm de lado y a la velocidad: ");
-            if(Paquete.datos[0]==2){
-              Serial.print("Media");
-            }else if (Paquete.datos[0]==3){
-              Serial.print("Alta");
-            }else{Serial.print("ERROR");}
-            aux_distancia=Paquete.datos[1]; //Guardamos el dato distancia recibida en el paquete en la variable auxiliar
-            aux_velocidad=Paquete.datos[0]; //Guardamos la velocidad recibida de el paquete en la variable auxiliar
-            menuSelect=12;  
-          break;
-       case 7: //función Triangulo
-          // Ir a función
-          Serial.println("triangulo de "); 
-            Serial.print(Paquete.datos[1]);
-            Serial.print("cm de lado y a la velocidad: ");
-            if(Paquete.datos[0]==2){
-              Serial.print("Media");
-            }else if (Paquete.datos[0]==3){
-              Serial.print("Alta");
-            }else{Serial.print("ERROR");}
-            aux_distancia=Paquete.datos[1]; //Guardamos el dato distancia recibida en el paquete en la variable auxiliar
-            aux_velocidad=Paquete.datos[0]; //Guardamos la velocidad recibida de el paquete en la variable auxiliar
-            menuSelect=11;   
-          break; 
-       case 8: //función Leer temperatura
-           // Ir a función
-           aux_temperatura=Lee_temperatura();// Lee la temperatura del sensor
-           Serial.print("Temperatura: "); 
-           Serial.println(String(int(aux_temperatura),DEC));
-           auxiliar=String(int(aux_temperatura),DEC); //conviete el integer en String
-           auxiliar.toCharArray(envio,5);    //convierte el String en char*       
-           EscribePuerto(envio); //envia la temperatura en valor char.
-           
-       break; 
-	 // Se pueden añadir las acciones que se necesiten leer del robot como acelerometro, infrarrojos...
-       default:
-           Serial.println("No se entiende la trama recibida"); 
-         break;       
-    }        
-  }
-  
-#endif //ENTREGA_4
 
 
 //Main Switch for menu interaction
@@ -405,58 +279,39 @@ if(flagSendUDPControl){
      case 0: //Main Menu     
        mainMenu(); //MENU FOR SERIAL INPUT!
       break;
-     case 1:
-		startGetTemps();
-		menuSensorTemps();      
-      break;
-     case 2:
-		startGetAccel();
-		menuAccel();       
-      break;
-     case 3:
-		startGetUltra();
-		menuUltrasound();       
-      break;
-     case 4:
-		startGetInfra(); 
-		menuInfra();      
-      break;
-     case 5:
-                menuServoRight();
-      break;
-     case 6:       
-                menuServoLeft();
-      break;
-     case 7:
-                menuServoHead();
-      break; 
-     case 8:             
-                menuLEDs();
-     break; 
-     case 9: // Mover hacia adelante
-                if(adelante_dist(aux_velocidad,aux_distancia)){
-                  menuSelect=0; // si ha acabado la acción vuelve al menú principal
-                  
-                  freno=true;
+     case 1: // modo automático
+		if(girando){
+                  if(gira(1,3,90)){
+                    girando=false;
+                  }
+                }else{
+                  mover(Estado.velocidad_auto,1);
                 }
-     break; 
-     case 10: // Mover hacia atras             
-                if(atras_dist(aux_velocidad,aux_distancia)){ 
-                  menuSelect=0; // si ha acabado la acción vuelve al menú principal
-                  
-                  freno=true;
-                }
-     break; 
-     case 11: // Mover en forma de triángulo             
-                if(triangulo(aux_velocidad,aux_distancia)){ 
-                  menuSelect=0;  // si ha acabado la acción vuelve al menú principal        
-                  freno=true;
-                  bloqueo_wifi=false;
+                
+                       
+      break;
+     case 2: // modo acelerometro
+		   
+      break;
+     case 3: // modo laberinto
+		      
+      break;
+     case 4: // Modo manual           
+                mover(Estado.speedValue,Estado.turnAngle);
+                
+      //          menuSelect=0;
+                freno=true;    
+      break;
+     case 5: // Mover en forma de  circulo            
+                if(circunferencia()){ 
+                   menuSelect=0;   // si ha acabado la acción vuelve al menú principal       
+                   freno=true;
+                bloqueo_wifi=false;
                 }else{
                   bloqueo_wifi=true;
-                }
-     break; 
-     case 12: // Mover en forma de  cuadrado             
+                }   
+      break;
+     case 6: // Mover en forma de  cuadrado             
                 if(cuadrado(aux_velocidad,aux_distancia)){
                   menuSelect=0;   // si ha acabado la acción vuelve al menú principal
                   
@@ -465,55 +320,23 @@ if(flagSendUDPControl){
                 }else{
                   bloqueo_wifi=true;
                 }
-                    
-     break; 
-     case 13: // Mover en forma de  circulo            
-                if(circunferencia()){ 
-                   menuSelect=0;   // si ha acabado la acción vuelve al menú principal       
-                   freno=true;
-                bloqueo_wifi=false;
+      break;
+     case 7: // Mover en forma de triángulo             
+                if(triangulo(aux_velocidad,aux_distancia)){ 
+                  menuSelect=0;  // si ha acabado la acción vuelve al menú principal        
+                  freno=true;
+                  bloqueo_wifi=false;
                 }else{
                   bloqueo_wifi=true;
-                }   
-     break; 
-     case 14: // gira             
-                if(gira(aux_direccion,aux_velocidad,aux_angulo)){
-                   menuSelect=0;   // si ha acabado la acción vuelve al menú principal       
-                  
-                   freno=true;
                 }
-     break;    
-    case 15:
-                 adelante(velocidad);
-                   menuSelect=0;
-                   freno=true;
-                 
+      break; 
+      case 8: // giro 45º             
+                if(gira(1,3,45)){ 
+                  menuSelect=1;
                 
-     break;
-     case 16:
-                 parar();
-                     menuSelect=0;
-                     freno=true;
-                  
-     break;
-     case 17:
-                 atras(velocidad);
-                     menuSelect=0;
-                     freno=true;
-                  
-     break;
-     case 18:
-                     
-                if(gira(direc,velocidad,angulo)){
-                   menuSelect=0;   // si ha acabado la acción vuelve al menú principal       
-                   freno=true;
                 }
-                  
-     break;
-     case 20:
-              
-     break;
-              }       
+      break; 
+    }       
 }
 
 
@@ -522,24 +345,13 @@ void interruptCallback(){ //Interrupt time
   timerCounter++; 
   timerCounterfreno++;
  
-  switch(menuSelect){     
-     case 1:
-	if (timerCounter==2){ 
-		Escribe_temp();
-	}     
-      break;
-     case 2:
-		Escribe_aceleracion();     
-      break;
-     case 3:
-		Escribe_distancia(distancia_obj);       
-      break;
-     case 4:
-		Escribe_deteccion_negro();     
-      break;    	 
-  }     
-  if (timerCounter==2){ // 2s passed	
-    timerCounter=0;    
+  
+  if (timerCounter==5){ // 5s passed	
+    timerCounter=0;   
+    //Send info if we are at Control
+    if (dataRX.dataType == 'C'){
+      Estado.temp = (int)Lee_temperatura();
+      flagSendUDPControl=true;
   }
   
   if (freno==true) // si está activo el freno encendemos el led rojo
@@ -558,14 +370,11 @@ void interruptCallback(){ //Interrupt time
       //freno_timer=false;
       //digitalWrite(29, LOW);
       //digitalWrite(27, LOW);
-    //}    
-    
-    //Send info if we are at Control
-    if (dataRX.dataType == 'C'){
-      flagSendUDPControl=true;
-      //EscribePuerto("C5104NM2N");
+    //}       
     } 
   }
+  
+
 }
 
 
