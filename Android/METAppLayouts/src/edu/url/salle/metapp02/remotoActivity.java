@@ -57,12 +57,14 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	char angulo = '3';//Posiciones accel mobil -> 12345 ( 3 = posicion central )
 	char gesturetrigger='N';
 	char activateLED ='N';
+	char tramaType = 'C';
 
 	char old_angulo='9';
 	
 	private TextView text;
 	Button Bmodo;
 	ImageView freno1,freno2;
+	TextView  textTemp ;
 	private GestureLibrary libreria;
  
 	protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +91,10 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
    
             	Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
 				toast1.show();
-        	   volver(null);
+				
+				tramaType='X'; //Kill the arduino process
+				sendData();		
+        	    volver(null);
 				
 	       }
 
@@ -246,19 +251,14 @@ public void marchas() {
 
 
 	
-	public void volver(View view) {
-		   
+	public void volver(View view) {   
 		Intent intent = new Intent(this, 
-               MainActivity.class);
-		
-startActivity(intent);
-
+        MainActivity.class);
+		startActivity(intent);
+		finish();
 }
 
 	
-	
-	
-
 @Override
 public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 	ArrayList<Prediction> predictions = libreria.recognize(gesture);
@@ -355,33 +355,76 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
         old_angulo=angulo;
         
       //  this.text6.setText(" "+angle);
-		System.out.println ("El angulo es " + angle);
+		//System.out.println ("El angulo es " + angle);
 		
+    }
+    
+    
+    private boolean parseRXstring(String data)
+    {
+    	
+    	//C34N0M0N
+    	//Type-Temp1-Temp0-Led-Colision-M/Auto-Velocidad
+    	String type = data.substring(0,1);
+    	String temperature = data.substring(1,3);
+    	String LEDsActive = data.substring(3,4);
+    	int colision = Integer.parseInt(data.substring(4,5));  
+    	String modo = data.substring(5,6);  
+    	int velocidad = Integer.parseInt(data.substring(6,7));
+    	
+    	
+    	//Change temperature
+    	textTemp = (TextView) findViewById(R.id.text);
+    	textTemp.setText(temperature);
+    	
+    	//Detecting colision
+    	if (colision==1){
+    		freno1.setBackgroundColor(0xFF3344FF);
+     	    freno2.setBackgroundColor(0xFF3344FF);
+    	}else if (colision == 2){
+    		freno1.setBackgroundColor(0xFFFFFFFF);
+     	    freno2.setBackgroundColor(0xFFFFFFFF);
+    	}else if (colision == 3){
+    		//do sth
+    	}else{
+    		//do sth
+    	}
+    	
+    	
+    	
+    	
+    	
+    	System.out.println(temperature);
+    	
+		return false;
     }
 	
 	public boolean sendData(){
 		try {
 			final DatagramSocket socket = new DatagramSocket ();
 			InetAddress address;
-			address = InetAddress.getByName ("172.20.10.9");
-			//address = InetAddress.getByName ("192.168.43.214");
+			//address = InetAddress.getByName ("172.20.10.9");
+			address = InetAddress.getByName ("192.168.43.214");
 			byte[] buf = new byte[256];
 			String stemp;
 					
 			switch (velocidad) {
 			case -1:
-				stemp='C'+"4"+angulo;
+				stemp=tramaType+"4"+angulo;
 				break;
 			case -2:
-				stemp='C'+"5"+angulo;
+				stemp=tramaType+"5"+angulo;
 				break;
 			case -3:
-				stemp='C'+"6"+angulo;
+				stemp=tramaType+"6"+angulo;
 				break;
 			default:
-				stemp='C'+Integer.toString(velocidad)+angulo;
+				stemp=tramaType+Integer.toString(velocidad)+angulo;
 				break;
 			}			
+			
+			//Reset trama Type
+			tramaType='C';
 
 			//Manual/Auto
 			if (modo==0){
@@ -398,23 +441,9 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			//Reset gesture detected
 			gesturetrigger='N';
 			
-			System.out.println (stemp);
+			//System.out.println (stemp);
 			
 			buf = stemp.getBytes ();
-//			String s = "C1113MY";
-//			switch (entrada){
-//			case 1:
-//				s = "C1113MY";
-//				buf = s.getBytes ();
-//				break;
-//			default:
-//				s = "C2553MY";
-//				buf = s.getBytes ();
-//			
-//			}
-			//byte[] buf = new byte[256];
-	       // String s = "C2553MY"; //TESTING
-	        //buf = s.getBytes ();
 			        
 	        final DatagramPacket packet = new DatagramPacket (buf, buf.length, address, 55056);
 			
@@ -456,7 +485,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
           {
                 DatagramSocket socket;
                 DatagramPacket packet;
-                byte[] buf = new byte[256];
+                byte[] buf = new byte[8];
                 System.out.println ("Thread running");
                 try
                 {
@@ -464,11 +493,14 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                 	 //socket = new DatagramSocket (55056);
                       while (true)
                       {                          
-                            packet = new DatagramPacket (buf, buf.length);
-                            socket.receive (packet);
+                            //packet = new DatagramPacket (buf, buf.length);
+                           packet= new DatagramPacket(buf,8);
+                    	  socket.receive (packet);
                             System.out.println ("Received packet");
                             String s = new String (packet.getData());
                             //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+                            System.out.println (s);
+                            parseRXstring(s);
                       }
                 }
                 catch (IOException e)
