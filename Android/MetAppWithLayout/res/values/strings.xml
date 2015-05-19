@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">METApp02</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="Boton1">Control remoto</string>
+	<string name="Boton2">Acelerómetro</string>
+	<string name="Boton3">Laberinto</string>
+	<string name="Boton4">Log. Comunicación</string>
+	<string name="Boton1.1">Manual</string>
+	<string name="Boton1.2">Automatico</string>
+	<string name="Text1">50</string>
+	<string name="Text2">ªC</string>
+    <string name="BSol">Solucion</string>
+	<string name="BRec">Recorrido</string>
+	<string name="BDesc">Descartados</string>
+</resources>

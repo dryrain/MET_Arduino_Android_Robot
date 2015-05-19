@@ -106,17 +106,15 @@ public class accelActivity extends Activity implements SensorEventListener{
         angle = (float) (Math.atan2(aX, aY)/(Math.PI/180));  
         this.text6.setText(" "+angle);
 		System.out.println ("El angulo es " + angle);
+		sendData();
         
     } 
 
 
-	public void volver(View view) {
-		   
+	public void volver(View view) {	   
 		Intent intent = new Intent(this, 
-               MainActivity.class);
-		
-startActivity(intent);
-
+        MainActivity.class);
+		startActivity(intent);
 }
 
 
@@ -128,7 +126,8 @@ startActivity(intent);
 		try {
 			final DatagramSocket socket = new DatagramSocket ();
 			InetAddress address;
-			address = InetAddress.getByName ("172.20.10.9");
+			//address = InetAddress.getByName ("172.20.10.9");
+			address = InetAddress.getByName ("192.168.43.214");
 			
 			byte[] buf = new byte[256];
 	        String s = "A2553MY"; //TESTING
@@ -184,7 +183,7 @@ startActivity(intent);
                             socket.receive (packet);
                             System.out.println ("Received packet");
                             String s = new String (packet.getData());
-                            Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();// Context contexto = this;
+                            //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();// Context contexto = this;
                       }
                 }
                 catch (IOException e)

@@ -56,6 +56,17 @@ void startGetLEDs(){ //Starts getting temps during interrupt time
         Serial.print("Presione 1,2,3 o 4 para activar y desactivar los LEDs.");
 }
 
+char luz_cruce(){ //camnbia el estado de las luces delanteras y devuelve el estado final "y" o "n".
+  digitalWrite(PIN_LED_2, !digitalRead(PIN_LED_2)); 
+  digitalWrite(PIN_LED_4, !digitalRead(PIN_LED_4));
+  if(digitalRead(PIN_LED_2)==HIGH)
+  {
+    return 'Y';
+  }else
+  {
+    return 'N';
+  }
+}
 
 int updateLEDs(){
   return 4; //TEST
