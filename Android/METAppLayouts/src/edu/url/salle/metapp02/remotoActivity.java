@@ -12,6 +12,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import android.R.color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -33,6 +34,7 @@ import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
 import android.gesture.Prediction;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -63,10 +65,16 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	
 	private TextView text;
 	Button Bmodo;
-	ImageView freno1,freno2;
+	ImageView frenodelantero,freno1,freno2;
+	ImageView accel1,accel2,accel3;
+	TextView textAcel;
 	TextView  textTemp ;
+	ImageButton Bled;
 	private GestureLibrary libreria;
  
+	Activity activityTest;
+	String rxPacket;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 			
         super.onCreate(savedInstanceState);
@@ -80,10 +88,19 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
         ImageButton Bvolver;
 		ImageButton Baddmarcha;
 		ImageButton Blessmarcha;
-		ImageButton Bled;
+		
+		activityTest = this;
+		
 		ImageButton Bfreno;
+		frenodelantero = (ImageView) findViewById(R.id.linear1);
 		freno1 = (	ImageView) findViewById(R.id.linear2);
 		freno2 = (	ImageView) findViewById(R.id.linear3);
+		accel1 = (	ImageView) findViewById(R.id.view4);
+		accel2 = (	ImageView) findViewById(R.id.view5);
+		accel3 = (	ImageView) findViewById(R.id.view6);
+		textTemp = (TextView) findViewById(R.id.text);
+		textAcel = (TextView) findViewById(R.id.text5);
+		
 		
 		Bvolver = (	ImageButton) findViewById(R.id.button1);
 		Bvolver.setOnClickListener(new View.OnClickListener() {
@@ -158,8 +175,10 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	           {
 	           case MotionEvent.ACTION_DOWN:
                {
-            	   freno1.setBackgroundColor(0xFF3333FF);
-            	   freno2.setBackgroundColor(0xFF3333FF);
+            	  // freno1.setBackgroundColor(0xFF3333FF);
+            	   freno1.setBackgroundColor(Color.RED);
+            	   
+            	   freno2.setBackgroundColor(Color.RED);
             	   frenar();
                    return true;
                }
@@ -374,28 +393,111 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     	
     	
     	//Change temperature
-    	textTemp = (TextView) findViewById(R.id.text);
-    	textTemp.setText(temperature);
+    	//textTemp = (TextView) findViewById(R.id.text);
+    	 textTemp.setText(temperature);
+    	//textAcel = (TextView) findViewById(R.id.text5);
+    	
     	
     	//Detecting colision
-    	if (colision==1){
-    		freno1.setBackgroundColor(0xFF3344FF);
-     	    freno2.setBackgroundColor(0xFF3344FF);
+    	if (colision==0){
+    		frenodelantero.setBackgroundColor(Color.BLACK);
+    		freno1.setBackgroundColor(Color.BLACK);
+     	    freno2.setBackgroundColor(Color.BLACK);
+    	}else if (colision == 1){
+    		frenodelantero.setBackgroundColor(Color.RED);
+     	    
     	}else if (colision == 2){
-    		freno1.setBackgroundColor(0xFFFFFFFF);
-     	    freno2.setBackgroundColor(0xFFFFFFFF);
-    	}else if (colision == 3){
     		//do sth
+    		freno1.setBackgroundColor(Color.RED);
+     	    
+    		
     	}else{
     		//do sth
+    		
+     	    freno2.setBackgroundColor(Color.RED);
+    	}
+    	
+    	if (velocidad==0){
+    		accel1.setBackgroundColor(Color.BLACK);
+    		accel2.setBackgroundColor(Color.BLACK);
+     	    accel3.setBackgroundColor(Color.BLACK);
+     	   textAcel.setText(Integer.toString(velocidad));
+     	    
+    	}else if ((velocidad == 1)){
+    		
+    		accel1.setBackgroundColor(Color.GREEN);
+    		accel2.setBackgroundColor(Color.BLACK);
+     	    accel3.setBackgroundColor(Color.BLACK);
+     	    textAcel.setText("1");
+     	    
+   		
+    	}else if ((velocidad == 2)){
+    		//do sth
+    		accel1.setBackgroundColor(Color.GREEN);
+    		accel2.setBackgroundColor(Color.GREEN);
+    		accel3.setBackgroundColor(Color.BLACK);
+    		
+         	textAcel.setText("2");
+         	    
+       		
+    		
+    	}else if((velocidad == 3)){
+    		//do sth
+    		accel1.setBackgroundColor(Color.GREEN);
+    		accel2.setBackgroundColor(Color.GREEN);
+    		accel3.setBackgroundColor(Color.GREEN);
+         	textAcel.setText("3");
+         	    
+       		
+    	}else if((velocidad == 4)){
+    		//do sth
+    		accel1.setBackgroundColor(Color.RED);
+    		accel2.setBackgroundColor(Color.BLACK);
+    		accel3.setBackgroundColor(Color.BLACK);
+    		textAcel.setText("-1");
+         	    
+       		
+    	}else if((velocidad == 5 )){
+    		//do sth
+    		accel1.setBackgroundColor(Color.RED);
+    		accel2.setBackgroundColor(Color.RED);
+    		accel3.setBackgroundColor(Color.BLACK);
+    		
+         	    	textAcel.setText("-2");
+         	    
+       		
+    	}else if((velocidad == 6)){
+    		//do sth
+    		accel1.setBackgroundColor(Color.RED);
+    		accel2.setBackgroundColor(Color.RED);
+    		accel3.setBackgroundColor(Color.RED);
+    		
+         	textAcel.setText("-3");
+         	    
+       		
     	}
     	
     	
     	
     	
     	
-    	System.out.println(temperature);
     	
+    	
+    	if(LEDsActive.equals("Y")){
+    		Bled.setBackgroundColor(Color.YELLOW);
+    	}else if(LEDsActive.equals("N")){
+    		Bled.setBackgroundColor(Color.WHITE);
+    		
+    	}
+    	if(modo.equals("M")){
+    		
+    		Bmodo.setText("Manual");
+    	}else{
+    		Bmodo.setText("Automatico");
+    	}
+    	
+    	System.out.println(temperature);
+    	System.out.println(modo);
 		return false;
     }
 	
@@ -497,10 +599,15 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                            packet= new DatagramPacket(buf,8);
                     	  socket.receive (packet);
                             System.out.println ("Received packet");
-                            String s = new String (packet.getData());
+                            rxPacket = new String (packet.getData());
                             //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-                            System.out.println (s);
-                            parseRXstring(s);
+                            System.out.println (rxPacket);
+                            activityTest.runOnUiThread(new Runnable(){
+                            	public void run(){
+                            		parseRXstring(rxPacket);
+                            	}
+                            });
+                            
                       }
                 }
                 catch (IOException e)

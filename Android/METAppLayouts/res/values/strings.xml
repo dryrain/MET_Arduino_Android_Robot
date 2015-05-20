@@ -12,6 +12,7 @@
 	<string name="Boton1.2">Automatico</string>
 	<string name="Text1">50</string>
 	<string name="Text2">ªC</string>
+	<string name="Text3">0</string>
     <string name="BSol">Solucion</string>
 	<string name="BRec">Recorrido</string>
 	<string name="BDesc">Descartados</string>
