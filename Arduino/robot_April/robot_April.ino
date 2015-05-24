@@ -9,7 +9,7 @@
 #define SERIAL_ACTIVE
 #define WIFI_ACTIVE
 #define TESTING_AREA
-
+float x,y,z;
 
 //const IPAddress IPSend (170,20,10,13);
 //const char IPSend[] = "192.168.0.194";
@@ -26,6 +26,7 @@ IPAddress IPRx;
 int PortRx;
 
 bool flagSendUDPControl = false;
+bool flagSendAccelUDP = false;
 
 //Counter for Interrupts
 int timerCounter=1;
@@ -107,10 +108,10 @@ void setup() {
     ini_port_servo_Left();
     ini_port_servo_Head();
     
-    ini_WIFI_WPA("hola","adiosadios"); //conectamos wifi
+    //ini_WIFI_WPA("hola","adiosadios"); //conectamos wifi
   // ini_WIFI_WPA("vodafoneED7E","SCCDDUPITP6BBM"); //conectamos wifi
    //ini_WIFI_WPA("Dryrain","sibemolsibemo");
-  // ini_WIFI_WPA("IphonePA","sable1992");
+  ini_WIFI_WPA("IphonePA","sable1992");
     //Ini Menu
     menuSelect=0;     
     char manualoAuto = 'M';        //inicializamos el estado inicial como manual
@@ -241,7 +242,7 @@ if (data != "E" && !bloqueo_wifi){ //We found something
    break; 
    case 'X': //Reply with accel data
     mover(0,1);
-    menuSelect=1;
+    menuSelect=0;
     dataType='M';
     
     
@@ -285,11 +286,16 @@ if (dataRX.dataType=='C'){
         
   }
 }
+
+
 if(flagSendUDPControl){
   sendControlUDP(Estado.temp,Estado.luces,Estado.colision,Estado.manualAuto,Estado.speedValue);
   flagSendUDPControl=false;
 }
-
+if(flagSendAccelUDP){
+  sendAccelUDP();
+  flagSendAccelUDP=false;
+}
 
 //Main Switch for menu interaction
   switch(menuSelect){
@@ -310,9 +316,9 @@ if(flagSendUDPControl){
      case 2: // modo acelerometro
      
 		//Serial.println("Esto no funciona");  
-                  startGetAccel();
-                  Lee_aceleracion();
-                  Escribe_aceleracion();
+                  //startGetAccel();
+                 // Lee_aceleracion();
+                  //Escribe_aceleracion();
       break;
      case 3: // modo laberinto
 		      
@@ -365,6 +371,7 @@ void interruptCallback(){ //Interrupt time
   //1s passed
   timerCounter++; 
   timerCounterfreno++;
+  
  
   
   if (timerCounter==5){ // 5s passed	
@@ -375,6 +382,9 @@ void interruptCallback(){ //Interrupt time
       flagSendUDPControl=true;
   }
   
+  //if(dataRX.dataType=='A'){
+  //flagSendAccelUDP=true;
+ // }
   if (freno==true) // si está activo el freno encendemos el led rojo
   {
     timerCounterfreno=0;

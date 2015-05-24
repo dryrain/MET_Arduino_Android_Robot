@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 import android.R.color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,7 +53,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	private Sensor mAccelerometer;
 	public float angle = 0;
 	int oldSpeed;
-	
+	 
 	//Variables trama control remoto
 	int velocidad=0; //Tres velocidades 1, 2 ,3, -1, -2, -3 
 	int updown=0; //Dirección
@@ -68,21 +70,26 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	ImageView frenodelantero,freno1,freno2;
 	ImageView accel1,accel2,accel3;
 	TextView textAcel;
-	TextView  textTemp ;
+	//TextView  textTemp ;
 	ImageButton Bled;
 	private GestureLibrary libreria;
- 
+	 TextView  textTemp ;
 	Activity activityTest;
 	String rxPacket;
+	Handler handler = new Handler();
+	Thread t;
+    
 	
 	protected void onCreate(Bundle savedInstanceState) {
-			
+	//protected void onCreate(View v) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cremoto);
         sSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
         mAccelerometer = sSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         //Creating the thread
-        Thread t = new Thread (new SocketListener ());
+        
+       t = new Thread (new SocketListener ());
+        
         t.start();
         
         ImageButton Bvolver;
@@ -90,6 +97,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		ImageButton Blessmarcha;
 		
 		activityTest = this;
+		
 		
 		ImageButton Bfreno;
 		frenodelantero = (ImageView) findViewById(R.id.linear1);
@@ -106,8 +114,8 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Bvolver.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
    
-            	Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
-				toast1.show();
+            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
+				//toast1.show();
 				
 				tramaType='X'; //Kill the arduino process
 				sendData();		
@@ -121,8 +129,8 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
            public void onClick(View v) {
    
 
-            Toast toast2 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
-			toast2.show();
+            //Toast toast2 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
+			//toast2.show();
         	if (modo==0){modo=1;}else
         	{
         		if (modo==1){modo=0;}
@@ -139,8 +147,8 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Baddmarcha.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
    
-            	Toast toast3 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
-				toast3.show();
+            	//Toast toast3 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
+				//toast3.show();
 				updown=0;
 				marchas();
 			
@@ -148,6 +156,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 				}	
 			
 
+           
         });
 		Blessmarcha = (ImageButton) findViewById(R.id.button7);
 		Blessmarcha.setOnClickListener(new View.OnClickListener() {
@@ -155,8 +164,8 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	   
 	        	   
 	                // Perform action on click
-	            	Toast toast3 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
-					toast3.show();
+	            	//Toast toast3 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
+					//toast3.show();
 					updown=1;
 					marchas();
 				
@@ -202,8 +211,8 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Bled = (ImageButton) findViewById(R.id.button3);
 		Bled.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
-            	Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Luces ", Toast.LENGTH_SHORT);
-				toast1.show();	
+            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Luces ", Toast.LENGTH_SHORT);
+				//toast1.show();	
 				luces();
 	       }
         });
@@ -275,6 +284,10 @@ public void marchas() {
         MainActivity.class);
 		startActivity(intent);
 		finish();
+		t.interrupt();
+		
+		
+		
 }
 
 	
@@ -330,6 +343,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     protected void onResume() { 
         super.onResume(); 
         sSensorManager.registerListener(this, mAccelerometer, Sensor.TYPE_ACCELEROMETER); 
+       // remotoActivity.handler;
     } 
 
     @Override 
@@ -391,10 +405,13 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     	String modo = data.substring(5,6);  
     	int velocidad = Integer.parseInt(data.substring(6,7));
     	
-    	
+    	 System.out.println ("DENTRO");
+    	 //System.out.println (temperature);
     	//Change temperature
-    	//textTemp = (TextView) findViewById(R.id.text);
+    	
+    	
     	 textTemp.setText(temperature);
+    	
     	//textAcel = (TextView) findViewById(R.id.text5);
     	
     	
@@ -504,9 +521,10 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 	public boolean sendData(){
 		try {
 			final DatagramSocket socket = new DatagramSocket ();
+			socket.setReuseAddress(true);
 			InetAddress address;
-			//address = InetAddress.getByName ("172.20.10.9");
-			address = InetAddress.getByName ("192.168.43.214");
+			address = InetAddress.getByName ("172.20.10.9");
+			//address = InetAddress.getByName ("192.168.43.214");
 			byte[] buf = new byte[256];
 			String stemp;
 					
@@ -528,6 +546,12 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			//Reset trama Type
 			tramaType='C';
 
+			if(tramaType=='X'){
+				socket.close();
+				
+			}
+				
+				
 			//Manual/Auto
 			if (modo==0){
 				//'M'
@@ -592,6 +616,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                 try
                 {
                      socket = new DatagramSocket (4560);
+                     socket.setReuseAddress(true);
                 	 //socket = new DatagramSocket (55056);
                       while (true)
                       {                          
@@ -602,11 +627,26 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                             rxPacket = new String (packet.getData());
                             //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
                             System.out.println (rxPacket);
-                            activityTest.runOnUiThread(new Runnable(){
+                            
+                       /*    activityTest.runOnUiThread(new Runnable(){
                             	public void run(){
                             		parseRXstring(rxPacket);
                             	}
                             });
+                            
+                          */  
+                            
+                            
+                            
+                            handler.post(new Runnable() {
+                                public void run() {
+                                	parseRXstring(rxPacket);
+                                }
+                            });
+                            /*		
+                            	//}
+                            });
+                            */		 
                             
                       }
                 }

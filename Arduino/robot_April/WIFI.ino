@@ -4,7 +4,8 @@ WiFiUDP Udpread;
 //unsigned int readPort = 2390;      // puerto local para leer datos
 unsigned int readPort = 55056; 
 char packetBuffer[255]; //buffer to hold incoming packet
-const char IPSend[] = "192.168.43.146";
+const char IPSend[] = "172.20.10.11";
+//const char IPSend[] = "192.168.43.228";
 const int sendPort = 4560 ;
 void ini_WIFI_WPA(char *c_ssid, char *c_pass){  
   // check for the presence of the shield:
@@ -193,7 +194,7 @@ void sendLaberynthUDP(){
 
 void sendAccelUDP(){
   //Data to send: X,Y,Z
-  char dataTX[11];
+  char dataTX[17];
   
   int Xpos = 100;//getPositionX();
   int Ypos = 110;//getPositionY();
@@ -202,20 +203,29 @@ void sendAccelUDP(){
   //Starting TX protocol
   dataTX[0]='A'; //Data Type Control
   
-  String strX = String(Xpos);
-  String strY = String(Ypos);
-  String strZ = String(Zpos);
+  String strX=String(x);
+  
+  String strY = String(y);
+  String strZ = String(z);
+  
   dataTX[1]=strX[0];
   dataTX[2]=strX[1];
   dataTX[3]=strX[2];
-  dataTX[4]=strY[0];
-  dataTX[5]=strY[1];
-  dataTX[6]=strY[2];
-  dataTX[7]=strZ[0];
-  dataTX[8]=strZ[1];
-  dataTX[9]=strZ[2];
+  dataTX[4]=strX[3];
+  dataTX[5]=strX[4];
+  dataTX[6]=strY[0];
+  dataTX[7]=strY[1];
+  dataTX[8]=strY[2];
+  dataTX[9]=strY[3];
+  dataTX[10]=strY[4];
+  dataTX[11]=strZ[0];
+  dataTX[12]=strZ[1];
+  dataTX[13]=strZ[2];
+  dataTX[14]=strZ[3];
+  dataTX[15]=strZ[4];
+  
 
-  dataTX[10]='\0';//End
+  dataTX[16]='\0';//End
   
   Serial.print("Data Sent: ");
   Serial.println(dataTX);
@@ -224,7 +234,7 @@ void sendAccelUDP(){
   //Udpread.beginPacket(Udpread.remoteIP(), Udpread.remotePort()); //Android Jordi UNI
   Udpread.write(dataTX,sizeof(dataTX));
   Udpread.endPacket();
-  
+   
 }
 
 

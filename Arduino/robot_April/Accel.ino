@@ -1,6 +1,6 @@
 //Define Ports Acelerometro
 MMA8452Q accel;
-
+//float x,y,z;
 void menuAccel(){
 	updateAccel();
   /*      if(accel.cx<0)
@@ -55,7 +55,12 @@ void Lee_aceleracion(void){
   {
     // First, use accel.read() to read the new variables:
     accel.read();
+    x=accel.cx;
+    y=accel.cy;
+    y=accel.cz;
   }
+  //return accel;
+  
 }
 void Escribe_aceleracion(void){
   Serial.print("x: ");
