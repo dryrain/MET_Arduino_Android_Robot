@@ -10,6 +10,13 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Window;
 
+/**
+*Esta clase tiene como funcion mostrar una imagen por defecto cuando se inicia la app y mientras 
+*esta se esta cargando.
+
+*/
+
+
 public class SplashScreenActivity extends Activity{
 
 	private static final long SPLASH_SCREEN_DELAY = 3000;

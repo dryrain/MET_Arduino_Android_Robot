@@ -15,7 +15,12 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
+/**
+*Esta clase es la encargada de mostrar el camino que sigue nuestro robot para resolver 
+*el laberinto, ademas tambien mostrara los lugares no explorados y los caminos no validos
+*con ayuda de un conjunto de imageView.
 
+*/
 public class laberintoActivity extends Activity{
 	
 	//
@@ -75,6 +80,12 @@ public class laberintoActivity extends Activity{
         });
     	
     }
+	
+	/**
+	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
+	*se encuentra la pantalla de seleccion de modo.
+	*/
+	
     	public void volver(View view) {
     		   
     		Intent intent = new Intent(this, 
@@ -97,7 +108,12 @@ public class laberintoActivity extends Activity{
     			
 
     }  
-    	
+    	/**
+    	*La clase SendData establece un socket de emision para poder enviar tramas
+    	*desde el sistema Android al robot arduino.Ademas realizara el parseado de la
+    	*informacion en un formato que sea entendido por nuestro robot.Para poder realizar 
+    	*el envio se debera crea un thread. Se utilizara como puerto emisor 55056
+    	*/
     	
     	public boolean sendData(){
     		try {
@@ -139,7 +155,11 @@ public class laberintoActivity extends Activity{
     		}      
     		return false;
     	}
-    	
+    	/**
+    	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
+    	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
+    	*el 4560
+    	*/  	
     	class SocketListener implements Runnable
         {
               String str;

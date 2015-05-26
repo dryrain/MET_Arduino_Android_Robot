@@ -21,6 +21,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+*Mostrara las tramas que son enviadas y recibidas en la comunicacion entre nuestro robot y el 
+*telefono. Indicando el tipo de trama y la fecha de envio o recepcion de la misma.
+*/
+
+
 public class logActivity extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +73,11 @@ public class logActivity extends Activity{
 		return null;
 	}
 
-
+	/**
+	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
+	*se encuentra la pantalla de seleccion de modo.
+	*/
+	
 
 	public void volver(View view) {
 		   
@@ -79,7 +89,11 @@ startActivity(intent);
 }
 	
 	
-	
+	/**
+	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
+	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
+	*el 4560
+	*/  
 	
 	class SocketListener implements Runnable
     {

@@ -42,7 +42,14 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+/**
+*La clase remotoActivity nos permite controlar remotamente nuestro robot, permitiendo elegir a que
+*velocidad, direccion, sentido queremos que se mueva taambien nos permitira elegir entre 2 modos de 
+*funcionamiento: el automatico y el manual. Ademas nos aportara informacion sobre el mismo
+*como puede ser la temperatura, si tiene un obstaculo proximo,etc.
 
+
+*/
 public class remotoActivity extends Activity implements OnGesturePerformedListener,SensorEventListener{
 	
 	//Wifi settings
@@ -67,9 +74,9 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	
 	private TextView text;
 	Button Bmodo;
-	ImageView frenodelantero,freno1,freno2;
-	ImageView accel1,accel2,accel3;
-	TextView textAcel;
+	private static ImageView frenodelantero,freno1,freno2;
+	private static ImageView accel1,accel2,accel3;
+	private static TextView textAcel;
 	//TextView  textTemp ;
 	ImageButton Bled;
 	private GestureLibrary libreria;
@@ -223,7 +230,10 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		GestureOverlayView gesturesView = (GestureOverlayView) findViewById(R.id.gestures);
 		gesturesView.addOnGesturePerformedListener(this);	
 	}
-
+	/**
+	*La funcion frenar permitira parar nuestro robot.Utilizara la funcion 
+*sendData para informar al robot de nuestra orden.
+	*/
 
 public void frenar() {
 		//Implementar
@@ -239,7 +249,11 @@ public void arrancar() {
 	sendData();
 }
 
-	
+/**
+*La funcion luces permitira enceder las luces de nuestro robot.Utilizara la funcion 
+*sendData para informar al robot de nuestra orden.
+*/
+
 public void luces() {
 		//Implementar	
 		if (activateLED=='N'){
@@ -250,7 +264,11 @@ public void luces() {
 		sendData();
 }
 	
-	
+/**
+*La funcion marchas permitira elegir la marcha a la que deseamos que nuestro robot se
+*mueva. Hemos definido tres marchas positivas y tres negativas.Utilizara la funcion 
+*sendData para informar al robot de nuestra orden.
+*/
 public void marchas() {		   
 	if(velocidad>=-3 && velocidad<=3 ){
 		if(updown==0 && velocidad<3 ){
@@ -265,6 +283,13 @@ public void marchas() {
 		sendData();
 	}	
 }
+
+/**
+*La funcion modo permite seleccionar que el robot funcione en modo manual (pudiendo elegir sentido 
+*y velocidad) o en modo automatico.Utilizara la funcion sendData para informar al robot de nuestra 
+*orden.
+*/
+
 	public void modo() {
 		   
 		if(modo==0 ){
@@ -277,7 +302,11 @@ public void marchas() {
 		sendData(); 	
 	}	
 
-
+	
+	/**
+	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
+	*se encuentra la pantalla de seleccion de modo.
+	*/
 	
 	public void volver(View view) {   
 		Intent intent = new Intent(this, 
@@ -290,6 +319,11 @@ public void marchas() {
 		
 }
 
+	/**
+	*La funcion onGesturePerformed sera la encargada de la deteccion del gesto tactil de una
+	*serie de figura geometricas que el robot puede realizar. Una vez detectado uno de estos
+	*gestos ejecutara la funcion sendData para que el robot lleve a cabo dicho movimiento.
+	*/
 	
 @Override
 public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
@@ -350,6 +384,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     protected void onPause() { 
         super.onPause(); 
         sSensorManager.unregisterListener(this, mAccelerometer); 
+        
+    
     } 
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) { 
@@ -357,6 +393,15 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
          
     } 
 
+    /**
+	*La funcion onSensorChanged actualizara el valor 3 variables en nuestro caso ax,ay,az 
+	*en funcion de los valores obtenidos por el acelerometro y en base a estos se determinara
+	*un angulo de giro que sera enviado al robot mediante la funcion sendData. Hemos de comentar
+	*que considerado 6 angulos de giro 3 a la izauierda y otros 3 a la derecha que el robot podra
+	*llevar a cabo.
+	*/
+    
+    
     public void onSensorChanged(SensorEvent event) { 
         // TODO Auto-generated method stub 
         if (event.sensor != mAccelerometer) 
@@ -392,7 +437,11 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 		
     }
     
-    
+    /**
+   	*La clase parseRXstring es la encargada de traducir la trama recibida por parte 
+   	*del sistema arduino y actualizar el estado de nuestros elementos UI como el TextView
+   	*de la temperatura, los imageView de deteccion o presencia de obstaculos,etc
+   	*/
     private boolean parseRXstring(String data)
     {
     	
@@ -495,11 +544,6 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     	}
     	
     	
-    	
-    	
-    	
-    	
-    	
     	if(LEDsActive.equals("Y")){
     		Bled.setBackgroundColor(Color.YELLOW);
     	}else if(LEDsActive.equals("N")){
@@ -518,6 +562,16 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 		return false;
     }
 	
+    
+    /**
+	*La clase SendData establece un socket de emision para poder enviar tramas
+	*desde el sistema Android al robot arduino.Ademas realizara el parseado de la
+	*informacion en un formato que sea entendido por nuestro robot.Para poder realizar 
+	*el envio se debera crea un thread. Se utilizara como puerto emisor 55056
+	*/
+    
+    
+    
 	public boolean sendData(){
 		try {
 			final DatagramSocket socket = new DatagramSocket ();
@@ -602,7 +656,11 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 		return false;
 	}
 	
-	
+	/**
+	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
+	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
+	*el 4560
+	*/
 	
 	class SocketListener implements Runnable
     {
@@ -617,7 +675,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                 {
                      socket = new DatagramSocket (4560);
                      socket.setReuseAddress(true);
-                	 //socket = new DatagramSocket (55056);
+                	
                       while (true)
                       {                          
                             //packet = new DatagramPacket (buf, buf.length);
@@ -628,25 +686,25 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                             //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
                             System.out.println (rxPacket);
                             
-                       /*    activityTest.runOnUiThread(new Runnable(){
+                          activityTest.runOnUiThread(new Runnable(){
                             	public void run(){
                             		parseRXstring(rxPacket);
                             	}
-                            });
-                            
-                          */  
                             
                             
+                            
+                            
+                           /* 
                             
                             handler.post(new Runnable() {
                                 public void run() {
                                 	parseRXstring(rxPacket);
                                 }
                             });
-                            /*		
+                            */		
                             	//}
                             });
-                            */		 
+                            	 
                             
                       }
                 }

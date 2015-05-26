@@ -34,7 +34,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import android.widget.Toast;
+/**
+*La clase accelActivity nos permite visualizar los valores que obtenemos del acelerometro de nuestro robot y
+*ademas nos dara una idea de como se encuentra posicionado el mismo mediante una serie de indicadores luminosos.
 
+*/
 public class accelActivity extends Activity implements SensorEventListener{
 	int x,y,z;
 	String tramaType = "A";
@@ -44,7 +48,7 @@ public class accelActivity extends Activity implements SensorEventListener{
 	public float angle = 0;
 	  TextView text2,text4,text6;
 
-	  ImageView image1,image2,image3,image4,image5,image6;
+	  ImageView xpos,xneg,ypos,yneg,zpos,zneg;
 	  String rxPacket;
 	  Activity activityTest1;
     Thread t;
@@ -52,6 +56,7 @@ public class accelActivity extends Activity implements SensorEventListener{
 	
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.accel);
         sSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
         mAccelerometer = sSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -61,6 +66,15 @@ public class accelActivity extends Activity implements SensorEventListener{
         z=0;
       
         ImageButton Bvolver;
+        xpos = (ImageView) findViewById(R.id.view10);
+		xneg = (	ImageView) findViewById(R.id.view13);
+		ypos = (	ImageView) findViewById(R.id.view11);
+		yneg = (	ImageView) findViewById(R.id.view12);
+		zpos = (	ImageView) findViewById(R.id.view14);
+		zneg = (	ImageView) findViewById(R.id.view15);
+        
+        
+        
         t = new Thread (new SocketListener ());
         
         t.start();
@@ -105,38 +119,11 @@ public class accelActivity extends Activity implements SensorEventListener{
         super.onPause(); 
         sSensorManager.unregisterListener(this, mAccelerometer); 
     } 
-/*
-    public void onAccuracyChanged(Sensor sensor, int accuracy) { 
-        // TODO Auto-generated method stub 
-         
-    } 
-
-    public void onSensorChanged(SensorEvent event) { 
-        // TODO Auto-generated method stub 
-        if (event.sensor != mAccelerometer) 
-            return; 
-         
-        float aX = event.values[0]; 
-        float aY = event.values[1]; 
-        //float aZ = event.values[2]; 
-        
-        this.text2.setText(" "+event.values[0]);
-
-        this.text4.setText(" "+event.values[1]);
-
-        //this.text6.setText(" "+event.values[2]);
-        
-        angle = (float) (Math.atan2(aX, aY)/(Math.PI/180));  
-        this.text6.setText(" "+angle);
-		System.out.println ("El angulo es " + angle);
-		sendData();
-        
-    } 
-
-<<<<<<< Updated upstream
-
-=======
-*/
+    
+    /**
+	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
+	*se encuentra la pantalla de seleccion de modo.
+	*/
 
 	public void volver(View view) {	   
 		Intent intent = new Intent(this, 
@@ -144,7 +131,11 @@ public class accelActivity extends Activity implements SensorEventListener{
 		startActivity(intent);
 }
 
-
+	/**
+   	*La clase parseRXstring es la encargada de traducir la trama recibida por parte 
+   	*del sistema arduino y actualizar el estado de nuestros elementos UI como el TextView
+   	*de la temperatura, los imageView de deteccion o presencia de obstaculos,etc
+   	*/
 
 
 	 private boolean parseRXstring(String data)
@@ -156,10 +147,42 @@ public class accelActivity extends Activity implements SensorEventListener{
 	    	String posX = data.substring(1,6);
 	    	String posY = data.substring(7,12);
 	    	String posZ=data.substring(13,18);
+	    	int x = Integer.parseInt(data.substring(2,3));
+	    	
+	   int y = Integer.parseInt(data.substring(7,8));
+	    int z = Integer.parseInt(data.substring(13,14));
 	    	
 	    	text2.setText(posX);
 	    	text4.setText(posY);
 	    	text6.setText(posZ);
+	    	/*
+	    	if (x<0){
+	    		xpos.setBackgroundColor(Color.BLACK);
+	    		xneg.setBackgroundColor(Color.RED);
+	    	}else if (x > 0){
+	    		xpos.setBackgroundColor(Color.RED);
+	    		xneg.setBackgroundColor(Color.BLACK);
+	    	}
+	    	if (y<0){
+	    		ypos.setBackgroundColor(Color.BLACK);
+	    		yneg.setBackgroundColor(Color.RED);
+	     	    
+	    	}else if (y> 0){
+	    		ypos.setBackgroundColor(Color.RED);
+	    		yneg.setBackgroundColor(Color.BLACK);
+	     	    
+	    	}
+	    	if (z<0){
+	    		zpos.setBackgroundColor(Color.BLACK);
+	    		zneg.setBackgroundColor(Color.RED);
+	     	    
+	    	}else if (z> 0){
+	    		zpos.setBackgroundColor(Color.RED);
+	    		zneg.setBackgroundColor(Color.BLACK);
+	     	    
+	    	}
+	    	
+	    	*/
 	    	
 	    	System.out.println(posX);
 	    	System.out.println(posY);
@@ -168,7 +191,12 @@ public class accelActivity extends Activity implements SensorEventListener{
 	    }	
 
 	
-	
+	 /**
+ 	*La clase SendData establece un socket de emision para poder enviar tramas
+ 	*desde el sistema Android al robot arduino.Ademas realizara el parseado de la
+ 	*informacion en un formato que sea entendido por nuestro robot.Para poder realizar 
+ 	*el envio se debera crea un thread. Se utilizara como puerto emisor 55056
+ 	*/
 	public boolean sendData(){
 		try {
 			final DatagramSocket socket = new DatagramSocket ();
@@ -184,42 +212,9 @@ public class accelActivity extends Activity implements SensorEventListener{
 	     
 			String stemp;
 			stemp=tramaType;
-			/*		
-			switch (velocidad) {
-			case -1:
-				stemp=tramaType+"4"+angulo;
-				break;
-			case -2:
-				stemp=tramaType+"5"+angulo;
-				break;
-			case -3:
-				stemp=tramaType+"6"+angulo;
-				break;
-			default:
-				stemp=tramaType+Integer.toString(velocidad)+angulo;
-				break;
-			}			
-			
-			//Reset trama Type
-			tramaType='C';
-
-			//Manual/Auto
-			if (modo==0){
-				//'M'
-				stemp=stemp+'M';
-			}else{
-				//'A'
-				stemp=stemp+'A';
-			}
-			
-			//GestureTrigger
-			stemp=stemp+gesturetrigger+activateLED;
-			
-			//Reset gesture detected
-			gesturetrigger='N';
+		
 			
 			System.out.println (stemp);
-			*/System.out.println (stemp);
 			buf = stemp.getBytes ();
 	        
 	        
@@ -255,6 +250,15 @@ public class accelActivity extends Activity implements SensorEventListener{
 		}      
 		return false;
 	}
+	
+	
+	/**
+	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
+	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
+	*el 4560
+	*/  
+	
+	
 	
 	class SocketListener implements Runnable
     {
