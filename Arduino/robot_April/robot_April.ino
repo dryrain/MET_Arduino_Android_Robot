@@ -179,7 +179,7 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   
   //END Parsing ---------------------------------------
   
-  
+  flagSendUDPControl=true;
   //Do whatever is needed to ...
   switch (dataRX.dataType){ //Reply control data
     case 'C':
@@ -210,8 +210,13 @@ if (data != "E" && !bloqueo_wifi){ //We found something
             menuSelect=6;
           }else if (dataRX.gestureTrigger=='T'){
             menuSelect=7;
-          }else
-          {
+          }else if (dataRX.luces=='Y'){ //comprueba si hay cambio de las luces delanteras.
+                  Estado.luces=luz_cruce(); //Activa o desactiva la luz delantera
+                  digitalWrite(37, HIGH); 
+                 digitalWrite(39, HIGH);
+                  flagSendUDPControl=true; // enviamos trama indicando el estado de la luz delantera
+  
+         
                 
             
            //movimiento
@@ -262,11 +267,9 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   //-------------------------- 
 }
 
-if (dataRX.dataType=='C'){
-  if (dataRX.luces!=Estado.luces){ //comprueba si hay cambio de las luces delanteras.
-                  Estado.luces=luz_cruce(); //Activa o desactiva la luz delantera
-                  flagSendUDPControl=true; // enviamos trama indicando el estado de la luz delantera
-  }   
+if (Estado.dataType=='C'){
+  
+  
   if(Lee_ultrasonidos()<20){
     
      if(cercano){
@@ -286,7 +289,7 @@ if (dataRX.dataType=='C'){
         
   }
 }
-
+//flagSendUDPControl=true;
 
 if(flagSendUDPControl){
   sendControlUDP(Estado.temp,Estado.luces,Estado.colision,Estado.manualAuto,Estado.speedValue);
@@ -296,6 +299,8 @@ if(flagSendAccelUDP){
   sendAccelUDP();
   flagSendAccelUDP=false;
 }
+
+mainMenu(); //MENU FOR SERIAL INPUT!
 
 //Main Switch for menu interaction
   switch(menuSelect){
@@ -308,7 +313,7 @@ if(flagSendAccelUDP){
                     girando=false;
                   }
                 }else{
-                  mover(Estado.velocidad_auto,1);
+                  mover(3,1);
                 }
                 
                        
@@ -317,8 +322,71 @@ if(flagSendAccelUDP){
      
 		//Serial.println("Esto no funciona");  
                   //startGetAccel();
-                 // Lee_aceleracion();
-                  //Escribe_aceleracion();
+                 Lee_aceleracion();
+                // Escribe_aceleracion();
+          //       if(x>-0.01&&x<0.12)
+           //      {
+         //          mover(0,3);
+       //          }else{
+         
+                 if(x>0){
+                   if(x<0.08&&y>-0.08&&y<0.08)
+                   {
+                     mover(0,1);
+                   }else
+                   {
+                       if(y>0.05){
+                         
+                           mover(3,9);
+                        }
+                        if(y<0.05){                           
+                            mover(3,8);
+                        }
+                    
+                    }
+                 }else{
+                  if(y>0.05){
+                       mover(3,9);
+                    }
+                    if(y<0.05){                                           
+                        mover(3,8);
+                   }
+                   
+                 }
+                    
+                      
+                    
+                 
+                 
+                 
+                 
+       /*          if(x<0.2){
+                 //     if(x<0){
+                           if(y>0.020){
+                               mover(3,9);
+                            }else {
+                           
+                                if(y>0.010){
+                                     if(x>0.10){
+                                       mover(0,1);
+                                    }else{
+                                        mover(2,1);
+                                    }
+                                 }else{
+                                    mover(3,8);
+                                 }
+                           }
+                 //       }else{
+                 //         mover(0,1);
+                  //      }
+                 }else{
+                             
+                            if(y>0){
+                                mover(3,9);
+                             }else {
+                                mover(3,8);
+                             }
+                 }*/
       break;
      case 3: // modo laberinto
 		      
@@ -377,14 +445,11 @@ void interruptCallback(){ //Interrupt time
   if (timerCounter==5){ // 5s passed	
     timerCounter=0;   
     //Send info if we are at Control
-    if (dataRX.dataType == 'C'){
+    if (Estado.dataType=='C'){
       Estado.temp = (int)Lee_temperatura();
       flagSendUDPControl=true;
+    }
   }
-  
-  //if(dataRX.dataType=='A'){
-  //flagSendAccelUDP=true;
- // }
   if (freno==true) // si está activo el freno encendemos el led rojo
   {
     timerCounterfreno=0;
@@ -402,9 +467,11 @@ void interruptCallback(){ //Interrupt time
       //digitalWrite(29, LOW);
       //digitalWrite(27, LOW);
     //}       
-    } 
-  }
+  } 
   
+  if(Estado.dataType=='A'){
+     flagSendAccelUDP=true;
+  }
 
 }
 

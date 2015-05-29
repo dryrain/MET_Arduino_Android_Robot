@@ -13,16 +13,19 @@ void mainMenu(){
          //Nothing happens
         break;
        case '1':   
+        Estado.dataType='C';
+        Estado.manualAuto='A';
         menuSelect=1;   
         break;
        case '2':   
+        Estado.dataType='A';
         menuSelect=2;   
         break;
        case '3': 
         menuSelect=3;   
         break;       
      }
-     draw();    
+ //    draw();    
   }
 }
 

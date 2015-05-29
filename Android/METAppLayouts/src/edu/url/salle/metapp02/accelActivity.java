@@ -46,9 +46,9 @@ public class accelActivity extends Activity implements SensorEventListener{
 	private SensorManager sSensorManager; 
 	private Sensor mAccelerometer;
 	public float angle = 0;
-	  TextView text2,text4,text6;
+	  private static TextView text2,text4,text6;
 
-	  ImageView xpos,xneg,ypos,yneg,zpos,zneg;
+	  private static ImageView xpos,xneg,ypos,yneg,zpos,zneg;
 	  String rxPacket;
 	  Activity activityTest1;
     Thread t;

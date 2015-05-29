@@ -80,7 +80,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	//TextView  textTemp ;
 	ImageButton Bled;
 	private GestureLibrary libreria;
-	 TextView  textTemp ;
+	 private static TextView  textTemp ;
 	Activity activityTest;
 	String rxPacket;
 	Handler handler = new Handler();

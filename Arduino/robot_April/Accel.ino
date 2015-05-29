@@ -57,7 +57,7 @@ void Lee_aceleracion(void){
     accel.read();
     x=accel.cx;
     y=accel.cy;
-    y=accel.cz;
+    z=accel.cz;
   }
   //return accel;
   

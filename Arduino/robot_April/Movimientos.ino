@@ -69,7 +69,8 @@ void mover(int velocidad, int giro)
        }else if(giro==7){
               velocidad_derch=90;
               velocidad_izq=-40; 
-       }                     
+       } 
+       
      break;
      case 4:  
         velocidad_derch=-15;
@@ -99,6 +100,22 @@ void mover(int velocidad, int giro)
      break;
      
    }
+   if(giro==8){ //Giro derecha para coger la pendiente
+              velocidad_derch=15;
+              velocidad_izq=0; 
+   }else if(giro==9){ //Giro izquierda para coger la pendiente
+              velocidad_derch=0;
+              velocidad_izq=15; 
+    
+  }else if(giro==10){ //Giro derecha bajando pendiente
+              velocidad_derch=15;
+              velocidad_izq=10; 
+   }else if(giro==11){ //Giro izquierad bajando pendiente
+              velocidad_derch=10;
+              velocidad_izq=15; 
+   }  
+   
+   
     moverServo(mLEFT,velocidad_izq);
     moverServo(mRIGHT,velocidad_derch);
   
