@@ -3,6 +3,8 @@ package edu.url.salle.metapp02;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,13 +12,16 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.R.color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -83,6 +88,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	 private static TextView  textTemp ;
 	Activity activityTest;
 	String rxPacket;
+	String log;
 	Handler handler = new Handler();
 	Thread t;
     
@@ -358,7 +364,20 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 	sendData();
 }		
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		if ((keyCode == KeyEvent.KEYCODE_BACK))
+		{
+			tramaType='X'; //Kill the arduino process
+			sendData();	
+			volver(null);
+			return true;
 
+		}
+		
+		return super.onKeyDown(keyCode, event);
+	}
 
 
 	@Override
@@ -577,8 +596,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			final DatagramSocket socket = new DatagramSocket ();
 			socket.setReuseAddress(true);
 			InetAddress address;
-			address = InetAddress.getByName ("172.20.10.9");
-			//address = InetAddress.getByName ("192.168.43.214");
+			//address = InetAddress.getByName ("172.20.10.9");
+			address = InetAddress.getByName ("192.168.43.214");
 			byte[] buf = new byte[256];
 			String stemp;
 					
@@ -624,7 +643,13 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			//System.out.println (stemp);
 			
 			buf = stemp.getBytes ();
-			        
+			      
+			
+			//log=stemp;
+			log=" Tx: "+stemp;
+			ModificarRegistro();
+    		
+			
 	        final DatagramPacket packet = new DatagramPacket (buf, buf.length, address, 55056);
 			
 	        new Thread ()
@@ -689,6 +714,10 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                           activityTest.runOnUiThread(new Runnable(){
                             	public void run(){
                             		parseRXstring(rxPacket);
+                            		log=" Rx: "+rxPacket;
+                            		ModificarRegistro();
+                            		
+                            		
                             	}
                             
                             
@@ -714,6 +743,35 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                 }
           }
     }
-	
-	
+	public boolean ModificarRegistro(){
+		try
+		{
+		    OutputStreamWriter fout=
+		        new OutputStreamWriter(
+		            openFileOutput("prueba_int.txt", Context.MODE_APPEND));
+		    Date curDate = new Date();
+		    SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		    
+		    String hora = formato.format(curDate);
+		    String esp;
+		    //esp=hora+" Tx: ";
+		    esp=hora;
+		    String cab=esp+log;
+		    cab=cab+"                       \n\n";
+		    
+		    
+		    fout.write(cab+"\n");
+		    fout.close();
+		}
+		catch (Exception ex)
+		{
+		    Log.e("Ficheros", "Error al escribir fichero a memoria interna");
+		}
+		return false;
+		
+		
+		
+		
+	}
+
 }

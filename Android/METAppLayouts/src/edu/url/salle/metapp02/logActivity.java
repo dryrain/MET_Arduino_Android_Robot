@@ -3,6 +3,7 @@ package edu.url.salle.metapp02;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -11,11 +12,15 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -28,10 +33,12 @@ import android.widget.Toast;
 
 
 public class logActivity extends Activity{
+	TextView tv ;
+	String log;
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.log);
-
+        
 	ImageButton volver;
 	
 	volver = (ImageButton) findViewById(R.id.button10);
@@ -49,6 +56,7 @@ public class logActivity extends Activity{
        }
 
     });
+	/*
 	try {
         Process process = Runtime.getRuntime().exec("logcat -d");
         BufferedReader bufferedReader = new BufferedReader(
@@ -63,7 +71,11 @@ public class logActivity extends Activity{
         TextView tv = (TextView)findViewById(R.id.text);
         tv.setText(log.toString());
       } catch (IOException e) {
-    }
+    }*/
+	
+	tv= (TextView)findViewById(R.id.text);
+	LeerRegitro();
+	
 }
 	
 	
@@ -85,6 +97,7 @@ public class logActivity extends Activity{
                MainActivity.class);
 		
 startActivity(intent);
+finish();
 
 }
 	
@@ -123,4 +136,83 @@ startActivity(intent);
                 }
           }
     }
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		if ((keyCode == KeyEvent.KEYCODE_BACK))
+		{
+				
+			volver(null);
+			return true;
+
+		}
+		
+		return super.onKeyDown(keyCode, event);
+	}
+	
+	 public boolean ModficarRegistro(){
+			try
+			{
+			    OutputStreamWriter fout=
+			        new OutputStreamWriter(
+			            openFileOutput("prueba_int.txt", Context.MODE_APPEND));
+			    Date curDate = new Date();
+			    SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			    
+			    String hora = formato.format(curDate);
+			    String cab=hora+log;
+			    cab=cab+"\n";
+			    
+			    fout.write(cab);
+			    fout.close();
+			}
+			catch (Exception ex)
+			{
+			    Log.e("Ficheros", "Error al escribir fichero a memoria interna");
+			}
+			return false;
+			
+			
+			
+			
+		}
+		public boolean LeerRegitro(){
+		try
+		{
+		    BufferedReader fin =
+		        new BufferedReader(
+		            new InputStreamReader(
+		                openFileInput("prueba_int.txt")));
+		    StringBuilder text = new StringBuilder();
+		    // String texto= fin.readLine();
+		    String texto="";
+		    try
+            {
+                while ((texto = fin.readLine()) != null)
+                   // line1+=line;
+                	
+                	text.append(texto);
+                text.append('\n');
+                
+                
+                
+            }catch (Exception e) 
+            {
+                e.printStackTrace();
+            }
+		   
+		    tv.setText(text);
+		  //  tv.setText(texto);
+		   // System.out.println (texto);
+		    fin.close();
+		}
+		catch (Exception ex)
+		{
+		    Log.e("Ficheros", "Error al leer fichero desde memoria interna");
+		}
+		return false;
+		}	 
+	 
+	 
 }

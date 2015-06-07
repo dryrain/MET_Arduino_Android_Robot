@@ -1,11 +1,14 @@
 package edu.url.salle.metapp02;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import edu.url.salle.metapp02.remotoActivity.SocketListener;
@@ -25,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 import android.widget.ImageButton;
@@ -42,7 +46,7 @@ import android.widget.Toast;
 public class accelActivity extends Activity implements SensorEventListener{
 	int x,y,z;
 	String tramaType = "A";
-	
+	String log;
 	private SensorManager sSensorManager; 
 	private Sensor mAccelerometer;
 	public float angle = 0;
@@ -129,8 +133,22 @@ public class accelActivity extends Activity implements SensorEventListener{
 		Intent intent = new Intent(this, 
         MainActivity.class);
 		startActivity(intent);
+		finish();
 }
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		if ((keyCode == KeyEvent.KEYCODE_BACK))
+		{
+			tramaType="X"; //Kill the arduino process
+			sendData();	
+			volver(null);
+			return true;
 
+		}
+		
+		return super.onKeyDown(keyCode, event);
+	}
 	/**
    	*La clase parseRXstring es la encargada de traducir la trama recibida por parte 
    	*del sistema arduino y actualizar el estado de nuestros elementos UI como el TextView
@@ -202,8 +220,8 @@ public class accelActivity extends Activity implements SensorEventListener{
 			final DatagramSocket socket = new DatagramSocket ();
 			socket.setReuseAddress(true);
 			InetAddress address;
-			address = InetAddress.getByName ("172.20.10.9");
-			//address = InetAddress.getByName ("192.168.43.214");
+			//address = InetAddress.getByName ("172.20.10.9");
+			address = InetAddress.getByName ("192.168.43.214");
 			
 			byte[] buf = new byte[256];
 	        //String s = "A2553MY"; //TESTING
@@ -216,7 +234,8 @@ public class accelActivity extends Activity implements SensorEventListener{
 			
 			System.out.println (stemp);
 			buf = stemp.getBytes ();
-	        
+			log=" Tx: "+stemp;
+			ModificarRegistro();
 	        
 	        
 			        
@@ -292,7 +311,9 @@ public class accelActivity extends Activity implements SensorEventListener{
                             //System.out.println (rxPacket);
                           activityTest1.runOnUiThread(new Runnable(){
                             	public void run(){
-                            		parseRXstring(rxPacket);
+                            		//parseRXstring(rxPacket);
+                            		log=" Rx: "+rxPacket;
+                            		ModificarRegistro();
                             	}
                             });
                            /* hand.post(new Runnable() {
@@ -326,6 +347,35 @@ public class accelActivity extends Activity implements SensorEventListener{
 
 
 
-	
+	public boolean ModificarRegistro(){
+		try
+		{
+		    OutputStreamWriter fout=
+		        new OutputStreamWriter(
+		            openFileOutput("prueba_int.txt", Context.MODE_APPEND));
+		    Date curDate = new Date();
+		    SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		    
+		    String hora = formato.format(curDate);
+		    String esp;
+		    //esp=hora+" Tx: ";
+		    esp=hora;
+		    String cab=esp+log;
+		    cab=cab+"                       \n\n";
+		    
+		    
+		    fout.write(cab+"\n");
+		    fout.close();
+		}
+		catch (Exception ex)
+		{
+		    Log.e("Ficheros", "Error al escribir fichero a memoria interna");
+		}
+		return false;
+		
+		
+		
+		
+	}	
 	
 }

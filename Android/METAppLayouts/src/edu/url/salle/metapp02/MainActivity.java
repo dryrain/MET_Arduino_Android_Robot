@@ -3,10 +3,18 @@ package edu.url.salle.metapp02;
 
 
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,8 +37,11 @@ public class MainActivity extends Activity {
 
 	//	Handler myHandler;
 	//	Runnable intro;
-
-	@Override
+	
+	
+static int i=0;
+String cab;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -43,7 +54,12 @@ public class MainActivity extends Activity {
 		Button mBoton_laberinto;
 		Button mBoton_control;
 		Button mBoton_log;
-
+		if(i==0){
+	
+        CrearRegistro();
+        i++;
+        }
+        
 		mBoton_control = (Button) findViewById(R.id.button1);
 		mBoton_control.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -59,7 +75,7 @@ public class MainActivity extends Activity {
 			}
 
 		});
-
+		
 		mBoton_laberinto = (Button) findViewById(R.id.button3);
 		mBoton_laberinto.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -143,6 +159,7 @@ public class MainActivity extends Activity {
 				remotoActivity.class);
 
 		startActivity(intent);
+		finish();
 
 	}
 	/**
@@ -154,6 +171,12 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(this, 
 				accelActivity.class);
 		startActivity(intent);
+		
+			finish();
+			
+			
+			
+	
 
 	}
 
@@ -168,6 +191,7 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(this, 
 				logActivity.class);
 		startActivity(intent);
+		finish();
 
 	}
 	/**
@@ -179,11 +203,59 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(this, 
 				laberintoActivity.class);
 		startActivity(intent);
+		finish();
 
 	}	
 
-
-
+/**
+ * 
+ */
+public boolean CrearRegistro(){
+	try
+	{
+	    OutputStreamWriter fout=
+	        new OutputStreamWriter(
+	            openFileOutput("prueba_int.txt", Context.MODE_PRIVATE));
+	   
+	    Date curDate = new Date();
+	    SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    
+	    String hora = formato.format(curDate);
+	    cab=hora+": Inicio aplicacion ";
+	    cab=cab+"                             \n\n";
+	    fout.write(cab);
+	    fout.close();
+	}
+	catch (Exception ex)
+	{
+	    Log.e("Ficheros", "Error al escribir fichero a memoria interna");
+	}
+	return false;
+	
+	
+	
+	
+}
+/*
+public boolean LeerRegitro(){
+try
+{
+    BufferedReader fin =
+        new BufferedReader(
+            new InputStreamReader(
+                openFileInput("prueba_int.txt")));
+ 
+    String texto = fin.readLine();
+    System.out.println (texto);
+    fin.close();
+}
+catch (Exception ex)
+{
+    Log.e("Ficheros", "Error al leer fichero desde memoria interna");
+}
+return false;
+}
+*/
 }
 
 
