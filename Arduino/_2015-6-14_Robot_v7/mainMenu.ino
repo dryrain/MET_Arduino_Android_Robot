@@ -18,7 +18,8 @@ void mainMenu(){
        case '3': // Modo reto laberinto.
         menuSelect=3;
         estadoLaberinto=0;
-        flagLaberinto=true;
+        //flagLaberinto=true;
+        Estado.dataType='L';
         
         break;       
      }   

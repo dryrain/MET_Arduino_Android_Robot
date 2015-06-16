@@ -200,7 +200,7 @@ if (data != "E" && !bloqueo_wifi){ //We found something
   
   //END Parsing ---------------------------------------
   
-  flagSendUDPControl=true;
+  //flagSendUDPControl=true;
   //Do whatever is needed to ...
   switch (dataRX.dataType){ //Reply control data
     case 'C':
@@ -243,20 +243,23 @@ if (data != "E" && !bloqueo_wifi){ //We found something
    break;
   
     case 'L': // Reply with laberynth data
-         sendLaberynthUDP();
-         //menuSelect=3;
+         //sendLaberynthUDP();
+         menuSelect=3; //Activa Modo Laberinto
    break;
     case 'A': //Reply with accel data
     
          sendAccelUDP();
          menuSelect=2;
    break; 
-   case 'X': //Reply with accel data
+   case 'X': //Closing ALL
     mover(0,1);
     menuSelect=0;
     dataType='M';
+    flagSendUDPControl=false;
+    flagSendAccelUDP=false;
+    flagLaberinto=false;
    break; 
-   case 'M': //Reply with accel data
+   case 'M': //TESTING not USED
     menuSelect=0;
     dataType='M';
    break; 
@@ -306,6 +309,7 @@ if (Estado.dataType=='C'){      // Si el robot esta en funcion de control
 if(flagSendUDPControl){ // Si esta activado el flag envia la trama de control al movil.
   sendControlUDP(Estado.temp,Estado.luces,Estado.colision,Estado.manualAuto,Estado.speedValue);
   flagSendUDPControl=false;
+  Serial.println("We are in Control");
 }
 if(flagSendAccelUDP){ // Si esta activado el flag envia la trama del retro de aceleracion al movil.
   sendAccelUDP();
@@ -314,6 +318,7 @@ if(flagSendAccelUDP){ // Si esta activado el flag envia la trama del retro de ac
 
 if(flagLaberinto){ // Si esta activado el flag envia la trama del retro de aceleracion al movil.
   sendLaberynthUDP();
+  Serial.println("We are in Laberinto");
   flagLaberinto=false;
 }
 
