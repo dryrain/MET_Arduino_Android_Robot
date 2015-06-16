@@ -1,122 +1,40 @@
-//ports
-const int portServoLeft = 11; //PWM
-const int portServoRight = 9;
-const int portServoHead = 12;
-const int LEFT = 0; // servo/giro izquierda
-const int RIGHT = 1; // servo/giro derecha
-const int HEAD= 2; // servo 180º
+#include <Servo.h> //librería de los servomotores
 
-Servo servoLeft;
-Servo servoRight;
-Servo servoHead;
+//Definicion de los puertos de los servocontroles.
+const int portServoLeft = 6; // PIN motor izquierdo.
+const int portServoRight = 9; // PIN motor derecho.
+const int portServoHead = 5; // PIN motor de giro del sensor de ultrasonidos.
 
-void menuServoLeft(){
-  boolean haveToMove=false;
-  int valueSerial=0;
+//Definicion de constantes.
+const int LEFT = 0;           // servo/giro izquierda
+const int RIGHT = 1;          // servo/giro derecha
+const int HEAD= 2;            // servo 180º
 
-  while ( Serial.available() > 0 ) {             
-	//Check if char 'q', if not mount an integer
-       valueSerial = Serial.parseInt();
-       
-       char dataIn = Serial.read();              
-       if (valueSerial==0)dataIn='q';
-         switch (dataIn){
-		case 'q':
-			menuSelect=0;
-			draw();
-                        moverServo(LEFT, 0);                  
-		break;
-		default:                    	
-			
-                        haveToMove=true; //move servo if we have a correct integer		
-		break;		
-	}
-  }   
-  //Now that we have the speed, move servos  
-  if (haveToMove)
-   { 
-     //90 is 0 --> 0
-     //180 is full left --> 90
-     //0 is full left --> -90
-     if (valueSerial > 90) {
-       valueSerial=90;
-     }else if (valueSerial < -90) {
-       valueSerial=-90;
-     }
-     moverServo(LEFT, valueSerial);
-     haveToMove=false;
-     Serial.println(valueSerial);
-   }
-}  
+//Definicion de tipos.
+Servo servoLeft;              // Establece el tipo servo para el motor izquierdo.
+Servo servoRight;             // Establece el tipo servo para el motor derecho.
+Servo servoHead;              // Establece el tipo servo para el motor de giro del sensor de ultrasonidos.
 
-void menuServoRight(){  
-  boolean haveToMove=false;
-  int valueSerial=0;
- 
-  while ( Serial.available() > 0 ) {
-       valueSerial = Serial.parseInt();
-       char dataIn = Serial.read();
-       
-       if (valueSerial==0)dataIn='q';
-	switch (dataIn){
-		case 'q':
-			menuSelect=0;
-			draw();
-                        moverServo(RIGHT, 0);                 
-		break;		
-		default:	                       				
-                        haveToMove=true; //move servo if we have a correct integer		
-		break;	
-	}
-  }   
-  //Now that we have the speed, move servos  
-  if (haveToMove)
-   { 
-     //90 is 0 --> 0
-     //180 is full right --> 90
-     //0 is full left --> -90
-     if (valueSerial > 90) {
-       valueSerial=90;
-     }else if (valueSerial < -90) {
-       valueSerial=-90;
-     }
-     moverServo(RIGHT, valueSerial);
-     haveToMove=false;
-     Serial.println(valueSerial);
-   }
-}  
 
-void menuServoHead(){  
-  boolean haveToMove=false;
-  int value = 0; 
-  while ( Serial.available() > 0 ) {
-       value = Serial.parseInt();
-       char dataIn = Serial.read();
-       
-       if (value==0)dataIn='q';
-     
-	switch (dataIn){
-		case 'q':
-			menuSelect=0;
-			draw();
-                        moverServo(2,0);                 
-		break;		
-		default:	                       				
-                        haveToMove=true; //move servo if we have a correct integer		
-		break;	
-	}
-  }   
-  //Now that we have the speed, move servos  
-  if (haveToMove)
-   { 
-     if (value >90) value=90;
-     if (value <-90) value=-90;
-     Serial.println(value);
-     value=value+90;
-     moverServo(2,value);
-     haveToMove=false;   
-   }  
+void ini_port_servo_Left(void){
+//Inicializa el motor izquierdo.
+  servoLeft.attach(portServoLeft);  
+  servoLeft.write(90);    
 }
+
+void ini_port_servo_Right(void){
+//Inicializa el motor derecho.
+   servoRight.attach(portServoRight);  
+   servoRight.write(90);
+}
+
+void ini_port_servo_Head(void){
+//Inicializa el motor de giro del sensor de ultrasonidos.
+   servoHead.attach(portServoHead);
+   servoHead.write(91);
+}
+
+
 
 void moverServo(int nservo, int pos){ 
    switch (nservo){
@@ -134,37 +52,18 @@ void moverServo(int nservo, int pos){
    }
 }
 
-void ini_port_servo_Left(void)
-{
-  servoLeft.attach(portServoLeft);  
-  servoLeft.write(90);
-    
-}
-
-void ini_port_servo_Right(void)
-{
-   servoRight.attach(portServoRight);  
-   servoRight.write(90);
-}
-
-void ini_port_servo_Head(void)
-{
-   servoHead.attach(portServoHead);
-   servoHead.write(95);
-}
-
-void reset_port_servo_Left(void)
-{
+void reset_port_servo_Left(void){
+//Inicializa el motor izquierdo.
   servoLeft.detach();
 }
 
-void reset_port_servo_Right(void)
-{
+void reset_port_servo_Right(void){
+//Inicializa el motor derecho.
    servoRight.detach();  
 }
 
-void reset_port_servo_Head(void)
-{
+void reset_port_servo_Head(void){
+//Inicializa el motor de giro del sensor de ultrasonidos.
    servoHead.detach();
 }
 

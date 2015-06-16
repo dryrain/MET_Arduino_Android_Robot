@@ -1,68 +1,26 @@
-//Define Ports Acelerometro
-MMA8452Q accel;
-//float x,y,z;
-void menuAccel(){
-	updateAccel();
-  /*      if(accel.cx<0)
-        {
-          digitalWrite(29,HIGH);
-          Serial.println("Atras");
-        }else{
-          digitalWrite(29,LOW);
-        }*/
-        delay(300);
-	if (Serial.available()>0){ //We found data!
-		char dataIn = Serial.read(); // Get data
-		//Serial.print(dataIn);
-		
-		switch (dataIn){
-			case 'q':
-			menuSelect=0;
-			stopGetAccel();
-			draw();
-			break;
-		}
-	}
-}
+//Definicion de los puertos del acelerometro. PIN SCL y SDA, que se definen dentro del tipo MMA8452Q
+#include <Wire.h>         // Libreria para controlar comunicaciones I2C.
+#include <SFE_MMA8452Q.h> // Libreria del acelerometro.
+MMA8452Q accel;           
+
 void ini_port_acelerometro(void){ 
+// Funcion para inicializar el acelerometro
   accel.init();
   Lee_aceleracion();
 } 
-void stopGetAccel() { //Stops getting temps during interrupt time
-	getAccel=false;
-}
 
-void startGetAccel(){ //Starts getting temps during interrupt time
-	getAccel=true;
-}
-
-void updateAccel(){
-	
-	//Get values
-	Lee_aceleracion();
-	//Print Values
-	
-}
-float Lee_marcha_atras(void){
-  Lee_aceleracion();
-  return accel.cx;
-  
-  
-  
-}
 void Lee_aceleracion(void){
-   if (accel.available())
-  {
-    // First, use accel.read() to read the new variables:
+// Funcion para leer la aceleracion producida en el robot en los ejes x, y, z.
+   if (accel.available()){
     accel.read();
     x=accel.cx;
     y=accel.cy;
     z=accel.cz;
-  }
-  //return accel;
-  
+  }  
 }
+
 void Escribe_aceleracion(void){
+// Funcion para escribir en consola el valor de la aceleración detectado.
   Serial.print("x: ");
   Serial.print(accel.cx, 3);
   Serial.print("\t");

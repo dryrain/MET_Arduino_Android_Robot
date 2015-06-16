@@ -1,75 +1,38 @@
-//Define Ports Tª
-const int slaveSelectPin =  40;//revisar 40,41,42
-const int clockPin       =  43;
-const int dataPin        =  42;
-float temperatura=0;
-
-void menuSensorTemps(){
-	updateTemps();
-	if (Serial.available()>0){ //We found data!
-		char dataIn = Serial.read(); // Get data
-                
-		//Serial.print(dataIn);
-		
-		switch (dataIn){
-			case 'q':
-				menuSelect=0;
-				stopGetTemps();
-				draw();   
-			break;
-		}	
-	}	
-}
+//Definicion de los puertos del sensor de temperatura.
+const int slaveSelectPin =  40; // PIN Slave.
+const int clockPin       =  43; // PIN Clock.
+const int dataPin        =  42; // PIN Data.
 
 void ini_port_temperatura(void){
-//Ini Ports Temperature
-  pinMode(clockPin, OUTPUT);
-  pinMode(slaveSelectPin, OUTPUT);
-  pinMode(dataPin, INPUT);  
-  
+//Inicializa los puertos del sensor de ultrasonido.
+  pinMode(clockPin, OUTPUT);       // Establece pin (43) como Clock de salida.
+  pinMode(slaveSelectPin, OUTPUT); // Establece pin (40) como Slave de salida.
+  pinMode(dataPin, INPUT);         // Establece pin (42) como Data de entrada.
 }
 
-void stopGetTemps() { //Stops getting temps during interrupt time
-	getTemps=false;
-}
-
-void startGetTemps(){ //Starts getting temps during interrupt time
-	getTemps=true;
-}
-
-
-int updateTemps(){
-	
-	//Get values
-	temperatura=Lee_temperatura();
-}
-float Lee_temperatura(void){  
+float Lee_temperatura(void){ 
+// Funcion para leer la temperatura recogido por el sensor de temperatura.
+// Salida: (float). Devuelve la temperatura en el ambiente en grados celsius.
         int data=0;
         float temp;
-	digitalWrite(clockPin, LOW);       // Start with clock low
-        digitalWrite(slaveSelectPin, LOW); // Start transfer by setting CS=LOW
+	digitalWrite(clockPin, LOW);             // Inicializa el Clock a valor LOW.
+        digitalWrite(slaveSelectPin, LOW);       // Inicializa el CS a valor LOW.
  
-        for (int i = 12; i>=0; i-=1) {     // Read the next 12 bits
-             digitalWrite(clockPin, LOW);   // Clock pulse
-             digitalWrite(clockPin, HIGH);
-             data += (digitalRead(dataPin) << i); // Read in value
+        for (int i = 12; i>=0; i-=1) {           // Lee 12 bits.
+             digitalWrite(clockPin, LOW);        // Crea un pulso en el Clock.
+             digitalWrite(clockPin, HIGH);       // Crea un pulso en el Clock.
+             data += (digitalRead(dataPin) << i);// Lee el valor
         }
 
-        digitalWrite(slaveSelectPin, HIGH); // Finish transfer
-        temp=data*0.0625;
-	return temp;   
+        digitalWrite(slaveSelectPin, HIGH);      // Finaliza la transferencia. 
+        temp=data*0.0625;                        // Convierte la temperatura a escala de grados celsius.
+	return temp;                             // Devuelve el valor de temperatura recogido por el sensor.
 }
 
-void Escribe_temp(void){
-
+void Escribe_temp(float temperatura){
+// Imprime valores por el puerto serie la temperatura recogida en el ambiente.
+// Entrada: (float). Se introduce el valor leido del sensor de temperatura para visualizarlo por consola. 
      Serial.println("Temperatura de ");
-
-     Serial.println(temperatura );
-     
+     Serial.println(temperatura);     
      Serial.println("ºC");
-     
-
-  
-  
-  
 }
