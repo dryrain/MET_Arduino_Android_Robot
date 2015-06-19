@@ -127,11 +127,9 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Bvolver.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
    
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
-				//toast1.show();
-				
 				tramaType='X'; //Kill the arduino process
-				sendData();		
+				sendData();	
+			//socket.close();
         	    volver(null);
 				
 	       }
@@ -142,8 +140,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
            public void onClick(View v) {
    
 
-            //Toast toast2 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
-			//toast2.show();
+            
         	if (modo==0){modo=1;}else
         	{
         		if (modo==1){modo=0;}
@@ -160,8 +157,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Baddmarcha.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
    
-            	//Toast toast3 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
-				//toast3.show();
+            	
 				updown=0;
 				marchas();
 			
@@ -176,9 +172,6 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	           public void onClick(View v) {
 	   
 	        	   
-	                // Perform action on click
-	            	//Toast toast3 =Toast.makeText(getApplicationContext(),"Id clicleada modo ", Toast.LENGTH_SHORT);
-					//toast3.show();
 					updown=1;
 					marchas();
 				
@@ -224,8 +217,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		Bled = (ImageButton) findViewById(R.id.button3);
 		Bled.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Luces ", Toast.LENGTH_SHORT);
-				//toast1.show();	
+            		
 				luces();
 	       }
         });
@@ -314,14 +306,17 @@ public void marchas() {
 	*se encuentra la pantalla de seleccion de modo.
 	*/
 	
-	public void volver(View view) {   
+	public void volver(View view) {  
+		
+		
+		t.interrupt();
+		t=null;
+	
 		Intent intent = new Intent(this, 
         MainActivity.class);
 		startActivity(intent);
+		
 		finish();
-		t.interrupt();
-		
-		
 		
 }
 
@@ -473,7 +468,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     	String modo = data.substring(5,6);  
     	int velocidad = Integer.parseInt(data.substring(6,7));
     	
-    	 System.out.println ("DENTRO");
+    	 System.out.println ("DENTRO remoto");
     	 //System.out.println (temperature);
     	//Change temperature
     	
@@ -596,8 +591,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			final DatagramSocket socket = new DatagramSocket ();
 			socket.setReuseAddress(true);
 			InetAddress address;
-			//address = InetAddress.getByName ("172.20.10.9");
-			address = InetAddress.getByName ("192.168.43.214");
+			address = InetAddress.getByName ("172.20.10.9");
+			//address = InetAddress.getByName ("192.168.43.214");
 			byte[] buf = new byte[256];
 			String stemp;
 					
@@ -621,6 +616,9 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 
 			if(tramaType=='X'){
 				socket.close();
+				 System.out.println ("Closed socket");
+				
+				//volver(null);
 				
 			}
 				
@@ -658,9 +656,9 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                   {
                         try
                         {
-                              System.out.println ("About to send message");
+                             // System.out.println ("About to send message");
                               socket.send (packet);
-                              System.out.println ("Sent message");
+                              //System.out.println ("Sent message");
                         }
                         catch (IOException e1)
                         {
@@ -705,11 +703,11 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                       {                          
                             //packet = new DatagramPacket (buf, buf.length);
                            packet= new DatagramPacket(buf,8);
-                    	  socket.receive (packet);
+                    	   socket.receive (packet);
                             System.out.println ("Received packet");
                             rxPacket = new String (packet.getData());
-                            //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-                            System.out.println (rxPacket);
+                            
+                            //System.out.println (rxPacket);
                             
                           activityTest.runOnUiThread(new Runnable(){
                             	public void run(){

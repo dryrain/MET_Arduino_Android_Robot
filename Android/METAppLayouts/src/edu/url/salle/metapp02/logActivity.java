@@ -47,8 +47,8 @@ public class logActivity extends Activity{
 
     	   
             // Perform action on click
-        	Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
-			toast1.show();
+        	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
+			//toast1.show();
     	   volver(null);
 			
 			
@@ -74,7 +74,7 @@ public class logActivity extends Activity{
     }*/
 	
 	tv= (TextView)findViewById(R.id.text);
-	LeerRegitro();
+	LeerRegistro();
 	
 }
 	
@@ -177,7 +177,7 @@ finish();
 			
 			
 		}
-		public boolean LeerRegitro(){
+		public boolean LeerRegistro(){
 		try
 		{
 		    BufferedReader fin =

@@ -247,9 +247,9 @@ public class accelActivity extends Activity implements SensorEventListener{
                   {
                         try
                         {
-                              System.out.println ("About to send message");
+                             // System.out.println ("About to send message");
                               socket.send (packet);
-                              System.out.println ("Sent message");
+                              //System.out.println ("Sent message");
                         }
                         catch (IOException e1)
                         {
