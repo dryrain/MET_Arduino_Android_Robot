@@ -1,3 +1,4 @@
+
 //Definicion de los puertos del acelerometro. PIN SCL y SDA, que se definen dentro del tipo MMA8452Q
 #include <Wire.h>         // Libreria para controlar comunicaciones I2C.
 #include <SFE_MMA8452Q.h> // Libreria del acelerometro.

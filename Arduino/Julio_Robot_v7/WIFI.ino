@@ -11,6 +11,7 @@ const char IPSend[] = "172.20.10.13";
 //const char IPSend[] = "192.168.0.194";
 //const char IPSend[] = "192.168.43.228";
 const int sendPort = 4560 ;            // puerto remoto para enviar datos al móvil.
+const int sendPortLaberinto = 4561 ; 
 
 IPAddress IPRx;
 int PortRx;
@@ -126,21 +127,37 @@ void sendLaberynthUDP(){
  // String labPath = "0010100101001010010100101"; //getLabPath();
   //int wallsHit = 3; //getWallsHit();
   //String labSolution = "0010100101111010010100101"; //getLabSolution();
+  char charLaberinto[83];
+  charLaberinto[0]='L';
   
-  String parsedlaberinto;
+  //String parsedlaberinto;
   //String parsedlaberinto[122];
-  int count=0;
-  for( int i=10; i>=0; i--){
-    for( int t=0;t<11;t++){
-      parsedlaberinto=parsedlaberinto+String(Laberinto[i][t]);
-      //parsedlaberinto[count]=Laberinto[i][t]-'0';
+  int count=1;
+  
+  for( int i=9; i>=1; i--){
+    for( int t=1;t<10;t++){
+      //parsedlaberinto=parsedlaberinto+String(Laberinto[i][t]);
+      if (Laberinto[i][t]==0){
+        charLaberinto[count]='0';
+      }else if (Laberinto[i][t]==1){
+        charLaberinto[count]='1';
+      }else if (Laberinto[i][t]==2){
+        charLaberinto[count]='2';
+      }else if (Laberinto[i][t]==3){
+        charLaberinto[count]='3';
+      }else if (Laberinto[i][t]==9){
+        charLaberinto[count]='9';
+      }
+      
+      //laberinto[count]=char(Laberinto[i][t]);
       count++;
     }  
   }
   //parsedlaberinto[123]='\0';
+  charLaberinto[83]='\0';
   
   Serial.print("\nData Parsed: ");
-  Serial.println(parsedlaberinto);
+  Serial.println(charLaberinto);
   //Starting TX protocol
   //dataTX[0]='L'; //Data Type Control
   //String strlabX = String(labXpos);
@@ -148,18 +165,22 @@ void sendLaberynthUDP(){
 
   
   //String dataToSend = 'L' + String(labXpos) + String(labYpos) + labPath + String(wallsHit) + labSolution;
-  String dataToSend = 'L' + String(parsedlaberinto);
+  //String dataToSend = 'L' + String(parsedlaberinto);
   
-  char dataTX[124];
-  dataToSend.toCharArray(dataTX,sizeof(dataTX),0);
+  //char dataTX[124];
+  //dataToSend.toCharArray(dataTX,sizeof(dataTX),0);
  
   
-  Serial.print("Data Sent: ");
-  Serial.println(dataTX);
+  //Serial.print("Data Sent: ");
+  //Serial.println(dataTX);
+ 
   
-  Udpread.beginPacket(IPSend, sendPort);
+  Udpread.beginPacket(IPSend, sendPortLaberinto);
   //Udpread.beginPacket(Udpread.remoteIP(), Udpread.remotePort()); //Android Jordi UNI
-  Udpread.write(dataTX,sizeof(dataTX));
+  //Udpread.write(dataTX,sizeof(dataTX));
+  //char test[] = "Hola Jose!";
+  //Udpread.write("Hola Jose!");
+  Udpread.write(charLaberinto);
   Udpread.endPacket();   
 }
 
