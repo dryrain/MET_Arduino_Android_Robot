@@ -120,8 +120,6 @@ void sendControlUDP(int temp,int luces,int colision,char manualAuto,int speedVal
 
 void sendLaberynthUDP(){
   //Data to send: position,path,wallsFound,solution
-  
-  
   //int labXpos = 3; //getLabXpos();
   //int labYpos = 5; //getLabYpos();
  // String labPath = "0010100101001010010100101"; //getLabPath();
@@ -145,8 +143,9 @@ void sendLaberynthUDP(){
         charLaberinto[count]='2';
       }else if (Laberinto[i][t]==3){
         charLaberinto[count]='3';
-      }else if (Laberinto[i][t]==9){
+      }else{
         charLaberinto[count]='9';
+        //Serial.println("9 detectado");
       }
       
       //laberinto[count]=char(Laberinto[i][t]);
@@ -154,7 +153,9 @@ void sendLaberynthUDP(){
     }  
   }
   //parsedlaberinto[123]='\0';
+  //charLaberinto[82]='7';
   charLaberinto[83]='\0';
+  
   
   Serial.print("\nData Parsed: ");
   Serial.println(charLaberinto);
@@ -173,14 +174,13 @@ void sendLaberynthUDP(){
   
   //Serial.print("Data Sent: ");
   //Serial.println(dataTX);
- 
   
   Udpread.beginPacket(IPSend, sendPortLaberinto);
   //Udpread.beginPacket(Udpread.remoteIP(), Udpread.remotePort()); //Android Jordi UNI
   //Udpread.write(dataTX,sizeof(dataTX));
   //char test[] = "Hola Jose!";
   //Udpread.write("Hola Jose!");
-  Udpread.write(charLaberinto);
+  Udpread.write(charLaberinto,sizeof(charLaberinto));
   Udpread.endPacket();   
 }
 

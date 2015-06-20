@@ -762,8 +762,8 @@ void interruptCallback(){ //Interrupt time
      flagSendAccelUDP=true; // Activa el flag de envío de la aceleracion al movil cada segundo si se esta en el reto de la rampa.
   }
   
-  if(Estado.dataType=='L'){
-    flagLaberinto=true;
+  if(Estado.dataType=='L'){ //Envio Laberinto cada segundo
+    //flagLaberinto=true;
   }
 }
 
