@@ -44,15 +44,9 @@ public class logActivity extends Activity{
 	volver = (ImageButton) findViewById(R.id.button10);
 	volver.setOnClickListener(new View.OnClickListener() {
        public void onClick(View v) {
-
-    	   
-            // Perform action on click
-        	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
-			//toast1.show();
+  
     	   volver(null);
-			
-			
-       // 	(null);
+		
        }
 
     });
@@ -119,7 +113,7 @@ finish();
                 System.out.println ("Thread running");
                 try
                 {
-                      //socket = new DatagramSocket (4560);
+                     
                 	  socket = new DatagramSocket (55056);
                       while (true)
                       {                          
@@ -185,12 +179,12 @@ finish();
 		            new InputStreamReader(
 		                openFileInput("prueba_int.txt")));
 		    StringBuilder text = new StringBuilder();
-		    // String texto= fin.readLine();
+		    
 		    String texto="";
 		    try
             {
                 while ((texto = fin.readLine()) != null)
-                   // line1+=line;
+                
                 	
                 	text.append(texto);
                 text.append('\n');
@@ -203,8 +197,7 @@ finish();
             }
 		   
 		    tv.setText(text);
-		  //  tv.setText(texto);
-		   // System.out.println (texto);
+		  
 		    fin.close();
 		}
 		catch (Exception ex)

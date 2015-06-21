@@ -3,6 +3,7 @@
    android:id="@+id/linearlayout5"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     android:orientation="vertical"
       
     >
@@ -44,6 +45,12 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/chooseimage"
                 android:text="@string/Boton3" />
+            
+            
+            
+            
+            
+            
             </RelativeLayout>
         
         <RelativeLayout
@@ -350,8 +357,8 @@
                 android:layout_marginRight="0dp"
                 android:layout_marginTop="1dp"
                 android:layout_toRightOf="@+id/pared13"
-                android:background="#FFFFFF"
-                android:src="@color/Red" />
+                android:background="@color/Red" />
+
 			<ImageButton
                   android:id="@+id/pared14"
                   android:layout_width="40dp"
@@ -559,11 +566,7 @@
                 android:layout_marginRight="0dp"
                 android:layout_marginTop="1dp"
                 android:layout_toRightOf="@+id/pared22"
-                android:background="#FFFFFF"
-                android:src="@color/Red" />
-               
-               
-               
+                android:background="@color/Red" />
                
               <ImageButton
                   android:id="@+id/pared23"
@@ -778,9 +781,7 @@
                 android:layout_marginRight="0dp"
                 android:layout_marginTop="1dp"
                 android:layout_toRightOf="@+id/pared31"
-                android:background="#FFFFFF"
-                android:src="@color/Red" />
-               
+                android:background="@color/Red" />
                
              <ImageButton
                   android:id="@+id/pared32"
@@ -993,15 +994,7 @@
                 android:layout_marginRight="0dp"
                 android:layout_marginTop="1dp"
                 android:layout_toRightOf="@+id/pared40"
-                android:background="#FFFFFF"
-                android:src="@color/Red" />
-               
-            
-         
-           
-         
-           
-           
+                android:background="@color/Red" />
             
             </RelativeLayout>
          <RelativeLayout
@@ -1016,7 +1009,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="15dp"
                 android:background="#FFFFFF"
                 android:text="@string/BSol"
                 android:textSize="16sp" />
@@ -1028,7 +1021,7 @@
                  android:layout_below="@+id/button11"
                  android:layout_marginLeft="10dp"
                  android:layout_marginRight="10dp"
-                 android:layout_marginTop="30dp"
+                 android:layout_marginTop="15dp"
                  android:background="#FFFFFF"
                  android:text="@string/BRec"
                  android:textSize="16sp" />
@@ -1040,11 +1033,21 @@
                   android:layout_below="@+id/button12"
                   android:layout_marginLeft="10dp"
                   android:layout_marginRight="10dp"
-                  android:layout_marginTop="30dp"
+                  android:layout_marginTop="15dp"
                   android:background="#FFFFFF"
                   android:text="@string/BDesc"
                   android:textSize="16sp" />
-
+<Button
+                android:id="@+id/buttonTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="15dp"
+                android:layout_below="@+id/button13"
+                android:layout_marginRight="10dp"
+                android:background="#FFFFFF"
+                android:text="@string/BTot"
+                android:textSize="16sp" />
         </RelativeLayout>
         </LinearLayout>
     

@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -32,34 +33,36 @@ import android.widget.Toast;
 public class laberintoActivity extends Activity{
 	
 	//
-	 ImageView a1,a2,a3,a4,a5;
-	 ImageView b1,b2,b3,b4,b5;
-	 ImageView c1,c2,c3,c4,c5;
-	 ImageView d1,d2,d3,d4,d5;
-	 ImageView e1,e2,e3,e4,e5;
-	 ImageView pa1,pa2,pa3,pa4;
-	 ImageView pb1,pb2,pb3,pb4;
-	 ImageView pc1,pc2,pc3,pc4;
-	 ImageView pd1,pd2,pd3,pd4;
-	 ImageView pe1,pe2,pe3,pe4;
+	 static ImageView a1,a2,a3,a4,a5;
+	 static ImageView b1,b2,b3,b4,b5;
+	 static ImageView c1,c2,c3,c4,c5;
+	 static ImageView d1,d2,d3,d4,d5;
+	 static ImageView e1,e2,e3,e4,e5;
+	 static ImageView pa1,pa2,pa3,pa4;
+	 static ImageView pb1,pb2,pb3,pb4;
+	 static ImageView pc1,pc2,pc3,pc4;
+	 static ImageView pd1,pd2,pd3,pd4;
+	 static ImageView pe1,pe2,pe3,pe4;
 	 
-	 ImageView pa11,pa12,pa13,pa14,pa15,pa16,pa17,pa18,pa19;
-	 ImageView pb11,pb12,pb13,pb14,pb15,pb16,pb17,pb18,pb19;
-	 ImageView pc11,pc12,pc13,pc14,pc15,pc16,pc17,pc18,pc19;
-	 ImageView pd11,pd12,pd13,pd14,pd15,pd16,pd17,pd18,pd19;
-	 ImageView pe11,pe12,pe13,pe14,pe15,pe16,pe17,pe18,pe19;
+	 static ImageView pa11,pa12,pa13,pa14,pa15,pa16,pa17,pa18,pa19;
+	 static ImageView pb11,pb12,pb13,pb14,pb15,pb16,pb17,pb18,pb19;
+	 static ImageView pc11,pc12,pc13,pc14,pc15,pc16,pc17,pc18,pc19;
+	 static ImageView pd11,pd12,pd13,pd14,pd15,pd16,pd17,pd18,pd19;
+	 static ImageView pe11,pe12,pe13,pe14,pe15,pe16,pe17,pe18,pe19;
 	 
-	 ImageView[][] IMGS= new ImageView[9][9];
+	 static ImageView[][] IMGS= new ImageView[9][9];
 	 
 	 String log;
 	 
 	 Thread t1;
-	 
+	 char tramaType = 'L';
+	 static char tramaSolution='N';
+	 static int stateA=0;
 	 Activity activityTestLab;
 	 
 	 String rxPacket;
 	 
-	int [][]matriz= new int[9][9];
+	static int [][]matriz= new int[9][9];
 	 
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +73,8 @@ public class laberintoActivity extends Activity{
         t1.start();
         activityTestLab=this;
         ImageButton volver;
-        ImageButton play,sol,rec,desc;
+        ImageButton play;
+        Button sol,rec,desc,todo;
         
         a1 = (	ImageView) findViewById(R.id.butm1);
 		a2 = (	ImageView) findViewById(R.id.butm2);
@@ -262,18 +266,25 @@ public class laberintoActivity extends Activity{
 		IMGS[8][7]=pe4;
 		IMGS[8][8]=e5;
 		
-		
+		for(int i = 0; i < 9; i++) {
+  		  for(int j =0; j < 9; j++) {
+  			 
+  		    	matriz[i][j]=0;
+			
+  		  }
+  		}
 		
 		
     	volver = (ImageButton) findViewById(R.id.button10);
     	volver.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
 
-                // Perform action on click
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
-    			//toast1.show();
+               
         	   volver(null);
-    		
+        	   resetMatriz();
+        	   tramaType='X'; //Kill the arduino process
+        	   tramaSolution='N';
+				sendData();	
            }
 
         });
@@ -281,64 +292,72 @@ public class laberintoActivity extends Activity{
     	play = (ImageButton) findViewById(R.id.button6);
     	play.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
-
-        	   sendData();
         	   
-                // Perform action on click
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Play ", Toast.LENGTH_SHORT);
-    			//toast1.show();
-        	   pintar();
+        	  
+        	   if(stateA==1){
+        		   
+        		   tramaSolution='S';
+        		   sendData();
+        		   log=" Tx: LS ";
+        		   
+        	   }else{
+        		   
+        		   	
+        		   	Toast toast1 =Toast.makeText(getApplicationContext(),"Robot en calculo ", Toast.LENGTH_SHORT);
+        		   	toast1.show();
+        	  
+        	   }
+        	  
         	   
            }
 
         });
-    	/*
-    	sol = (ImageButton) findViewById(R.id.button11);
+    	
+    	sol = (Button) findViewById(R.id.button11);
     	sol.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
 
-        	   //sendData();
         	   
-                // Perform action on click
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Play ", Toast.LENGTH_SHORT);
-    			//toast1.show();
-        	   pintar();
+        	   pintarsolucion();
     		
            }
 
         });
-    	rec = (ImageButton) findViewById(R.id.button12);
+    	rec = (Button) findViewById(R.id.button12);
     	rec.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
 
-        	   //sendData();
         	   
-                // Perform action on click
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Play ", Toast.LENGTH_SHORT);
-    			//toast1.show();
-        	   pintar();
+        	   pintarrecorrido();
     		
            }
 
         });
     	
-    	desc = (ImageButton) findViewById(R.id.button13);
+    	desc = (Button) findViewById(R.id.button13);
     	desc.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
 
-        	   //sendData();
         	   
-                // Perform action on click
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada Play ", Toast.LENGTH_SHORT);
-    			//toast1.show();
+        	   pintardescartados();
+    			
+        	   
+           }
+
+        });
+    	todo = (Button) findViewById(R.id.buttonTotal);
+    	todo.setOnClickListener(new View.OnClickListener() {
+           public void onClick(View v) {
+
+        	   
         	   pintar();
     			
         	   
            }
 
         });
-    	*/
     	sendData();
+    	
     	
     }
 	
@@ -351,12 +370,17 @@ public class laberintoActivity extends Activity{
 	
     	public void volver(View view) {
     		
+    		t1.interrupt();
+    		t1=null;
+    		
+    		
     		Intent intent = new Intent(this, 
                    MainActivity.class);
     		log=" Tx: XMODLA";
-    		ModificarRegistro(); // Esto no iria aqui sino cuando se haga un SendData()
+    		ModificarRegistro(); 
+    		
     startActivity(intent);
-    t1.interrupt();
+    
     finish();
 
     }
@@ -373,7 +397,7 @@ public class laberintoActivity extends Activity{
     	{
     		if ((keyCode == KeyEvent.KEYCODE_BACK))
     		{
-    			//tramaType='X'; //Kill the arduino process
+    			tramaType='X'; 
     			sendData();	
     			volver(null);
     			return true;
@@ -389,66 +413,96 @@ public class laberintoActivity extends Activity{
     	
     	public void pintar() {
  		   
-    		   a1.setBackgroundColor(0xFF3333FF);
-        	   a2.setBackgroundColor(0xFF3333FF);
-        	   b2.setBackgroundColor(0xFF3333FF);
-        	   c2.setBackgroundColor(0xFF3333FF);
-        	   c3.setBackgroundColor(0xFF3333FF);
-        	   c4.setBackgroundColor(0xFF3333FF);
-        	   e4.setBackgroundColor(0xFF3333FF);
-        	   e5.setBackgroundColor(0xFF3333FF);
-    			
+        	   
+           	for(int i = 0; i < 9; i++) {
+         		  for(int j =0; j < 9; j++) {
+         			 if(matriz[i][j]==1){
+         		    IMGS[i][j].setBackgroundColor(Color.BLUE);
+         			 }
+         			else if (matriz[i][j]==3){
+             		    IMGS[i][j].setBackgroundColor(Color.GREEN);	
+             				
+             			}
+         			else if (matriz[i][j]==2){
+         		    IMGS[i][j].setBackgroundColor(Color.RED);	
+         				
+         			}else if (matriz[i][j]==9){
+         				IMGS[i][j].setBackgroundColor(Color.BLACK);	
+         				
+         			}else{
+         				IMGS[i][j].setBackgroundColor(Color.WHITE);	
+         				
+         			}
+         		  }
+         		}
 
     }  
     	
 
     	public void pintarsolucion() {
- 		   /*
+ 		   
     		for(int i = 0; i < 9; i++) {
         		  for(int j =0; j < 9; j++) {
-        			 if(matriz[i-1][j-1]==3){
-        		    IMGS[i-1][j-1].setBackgroundColor(Color.GREEN);
+        			 if(matriz[i][j]==3){
+        		    IMGS[i][j].setBackgroundColor(Color.GREEN);
         			 
         		  }else{
-        				IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);	
+        				IMGS[i][j].setBackgroundColor(Color.WHITE);	
         				
         			}
         		  }
-        		}*/
+        		}
     			
 
     }  
     	
     	public void pintarrecorrido() {
-  		  /* 
+  		   
     		for(int i = 0; i < 9; i++) {
         		  for(int j =0; j < 9; j++) {
-        			 if(matriz[i-1][j-1]==1){
-        		    IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);
+        			 if(matriz[i][j]==1 || matriz[i][j]==3){
+        		    IMGS[i][j].setBackgroundColor(Color.BLUE);
         			}else{
-        				IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);	
+        				IMGS[i][j].setBackgroundColor(Color.WHITE);	
         				
         			}
         		  }
         		}
  			
-*/
+
     		}
+    	
     	public void pintardescartados() {
-	   /*
+	   
     		for(int i = 0; i < 9; i++) {
         		  for(int j =0; j < 9; j++) {
-        			 if(matriz[i-1][j-1]==2){
-        		    IMGS[i-1][j-1].setBackgroundColor(Color.RED);
+        			 if(matriz[i][j]==1){
+        		    IMGS[i][j].setBackgroundColor(Color.RED);
         			 }else{
-        				IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);	
+        				IMGS[i][j].setBackgroundColor(Color.WHITE);	
         				
         			}
         		  }
         		}
 		
-*/
+
     		} 
+    
+    	public void resetMatriz() {
+    		   
+    	    		for(int i = 0; i < 9; i++) {
+    	        		  for(int j =0; j < 9; j++) {
+    	        			 
+    	        		    IMGS[i][j].setBackgroundColor(Color.WHITE);
+    	        			
+    	        		}
+    		
+    	
+    	    		}
+    	    		}
+    	    		
+    	    		
+    	    		
     	/**
        	*La clase parseRXstring es la encargada de traducir la trama recibida por parte 
        	*del sistema arduino y actualizar el estado de nuestros elementos UI como las ImageViews
@@ -464,43 +518,66 @@ public class laberintoActivity extends Activity{
         	//Type-Temp1-Temp0-Led-Colision-M/Auto-Velocidad
     		
         	String type = data.substring(0,1);
-        	int count=0;
+        	String state=data.substring(1,2); //N (Resolviendo) o S (Solucion)
+        	
+        	int count=2;
+        	int count2=3;
         	 
-        	for(int i = 1; i < 9; i++) {
-        		  for(int j =1; j < 9; j++) {
-        			  
-        		    matriz[i][j] = Integer.parseInt(data.substring(count,count+1));  
-        		    count++;
-        		    
+        	for(int i = 0; i < 9; i++) {
+        		  for(int j =0; j < 9; j++) {
+        			 
+        		    try {
+        		    	
+        		    	String dataParseada = data.substring(count,count2);
+						matriz[i][j] = Integer.parseInt(dataParseada);
+						count++;
+						count2++;
+						
+					} catch (Exception e) {
+						// TODO: handle exception
+						count++;
+						count2++;
+					}
+        			 
         		    
         		  }
         		}
-        	 System.out.println ("DENTRO1");
+        	if(state.equals("S")){
+        		stateA=1;
+        	}else {
+        		stateA=0;
+        		
+        		
+        	}
+        	
+        	 
+        	 
         	for(int i = 0; i < 9; i++) {
       		  for(int j =0; j < 9; j++) {
-      			 if(matriz[i-1][j-1]==1){
-      		    IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);
+      			 if(matriz[i][j]==1){
+      		    IMGS[i][j].setBackgroundColor(Color.BLUE);
       			 }
-      			else if (matriz[i-1][j-1]==2){
-      		    IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);	
+      			else if (matriz[i][j]==3){
+          		    IMGS[i][j].setBackgroundColor(Color.GREEN);	
+          				
+          			}
+      			else if (matriz[i][j]==2){
+      		    IMGS[i][j].setBackgroundColor(Color.RED);	
       				
-      			}else if (matriz[i-1][j-1]==9){
-      				IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);	
+      			}else if (matriz[i][j]==9){
+      				IMGS[i][j].setBackgroundColor(Color.BLACK);	
       				
       			}else{
-      				IMGS[i-1][j-1].setBackgroundColor(Color.BLACK);	
+      				IMGS[i][j].setBackgroundColor(Color.WHITE);	
       				
       			}
       		  }
       		}
         	
         	
-        	 //System.out.println ("DENTRO");
-        	 //System.out.println (temperature);
-        	//Change temperature
         	
         	
-        	 
+        	
         	
         	
     		return false;
@@ -523,12 +600,13 @@ public class laberintoActivity extends Activity{
     			InetAddress address;
     			
     			address = InetAddress.getByName ("172.20.10.9");
-    			//address = InetAddress.getByName ("192.168.43.214");
+    			
     			
     			byte[] buf = new byte[256];
-    	        String s = "L"; //TESTING
+    	        String s="L"; //TESTING
+    	        s=tramaType+" "+tramaSolution;
     	        buf = s.getBytes ();
-    			        
+    	         
     	        final DatagramPacket packet = new DatagramPacket (buf, buf.length, address, 55056);
     			
     	        new Thread ()
@@ -537,9 +615,10 @@ public class laberintoActivity extends Activity{
                       {
                             try
                             {
-                                 System.out.println ("About to send message");
+                                 
                                   socket.send (packet);
-                                  System.out.println ("Sent message");
+                                  
+                                  
                             }
                             catch (IOException e1)
                             {
@@ -576,25 +655,24 @@ public class laberintoActivity extends Activity{
               {
                     DatagramSocket socket;
                     DatagramPacket packet;
-                    byte[] buf = new byte[2];
+                    byte[] buf = new byte[84];
                     System.out.println ("Thread running");
                     try
                     {
                           socket = new DatagramSocket (4561);
-                          //socket.setReuseAddress(true);
-                    	 // socket = new DatagramSocket (55056);
+                          
                           while (true)
                           {                          
-                                packet = new DatagramPacket (buf,2);
+                                packet = new DatagramPacket (buf,84);
                                 socket.receive (packet);
-                                System.out.println ("Received packet");
+                                
                                 rxPacket = new String (packet.getData());
                                 
-                                System.out.println (rxPacket);
+                                
                                 
                               activityTestLab.runOnUiThread(new Runnable(){
                                 	public void run(){
-                                		//parseRXstring(rxPacket);
+                                		parseRXstring(rxPacket);
                                 		log=" Rx: "+rxPacket;
                                 		ModificarRegistro();
                                 		
@@ -602,10 +680,6 @@ public class laberintoActivity extends Activity{
                                 	}
                                 		});
                                 
-                                
-                                
-                               // String s = new String (packet.getData());
-                                //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
                           }
                     }
                     catch (IOException e)

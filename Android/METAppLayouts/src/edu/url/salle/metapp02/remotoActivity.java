@@ -57,6 +57,7 @@ import android.hardware.SensorManager;
 */
 public class remotoActivity extends Activity implements OnGesturePerformedListener,SensorEventListener{
 	
+	
 	//Wifi settings
 	public Socket sender;
     public BufferedReader br;
@@ -83,7 +84,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	private static ImageView accel1,accel2,accel3;
 	private static TextView textAcel;
 	//TextView  textTemp ;
-	ImageButton Bled;
+	private static ImageButton Bled;
 	private GestureLibrary libreria;
 	 private static TextView  textTemp ;
 	Activity activityTest;
@@ -94,11 +95,12 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
     
 	
 	protected void onCreate(Bundle savedInstanceState) {
-	//protected void onCreate(View v) {
+	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cremoto);
         sSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
         mAccelerometer = sSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        
         //Creating the thread
         
        t = new Thread (new SocketListener ());
@@ -129,7 +131,6 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
    
 				tramaType='X'; //Kill the arduino process
 				sendData();	
-			//socket.close();
         	    volver(null);
 				
 	       }
@@ -190,7 +191,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	           {
 	           case MotionEvent.ACTION_DOWN:
                {
-            	  // freno1.setBackgroundColor(0xFF3333FF);
+            	  
             	   freno1.setBackgroundColor(Color.RED);
             	   
             	   freno2.setBackgroundColor(Color.RED);
@@ -207,8 +208,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
                }
 
 	               default:
-	            	 //  freno1.setBackgroundColor(0xFFFFFFF);
-	            	//   freno2.setBackgroundColor(0xFFFFFFF);
+	            	
 	                   return false;
 	                   
 	           }
@@ -228,13 +228,14 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 		GestureOverlayView gesturesView = (GestureOverlayView) findViewById(R.id.gestures);
 		gesturesView.addOnGesturePerformedListener(this);	
 	}
+	
 	/**
 	*La funcion frenar permitira parar nuestro robot.Utilizara la funcion 
 *sendData para informar al robot de nuestra orden.
 	*/
 
 public void frenar() {
-		//Implementar
+		
 	oldSpeed = velocidad;
 	velocidad=0;
 	sendData();
@@ -242,10 +243,11 @@ public void frenar() {
 
 
 public void arrancar() {
-	//Implementar
+	
 	velocidad=oldSpeed;
 	sendData();
 }
+
 
 /**
 *La funcion luces permitira enceder las luces de nuestro robot.Utilizara la funcion 
@@ -253,7 +255,7 @@ public void arrancar() {
 */
 
 public void luces() {
-		//Implementar	
+		
 		if (activateLED=='N'){
 			activateLED='Y';	
 		}else{
@@ -314,6 +316,11 @@ public void marchas() {
 	
 		Intent intent = new Intent(this, 
         MainActivity.class);
+		
+		log=" Tx: XMODCR";
+		ModificarRegistro(); 
+		
+		
 		startActivity(intent);
 		
 		finish();
@@ -331,8 +338,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 	ArrayList<Prediction> predictions = libreria.recognize(gesture);
 	
 
-	if(predictions.get(0).score>5){ //si la puntaci�n de reconocimiento es mayor a 5, entonces se ha reconocido una figura.
-		switch(predictions.get(0).name.length()){ //miramos la longitud de los car�cteres de la figura: circulo=7, cuadrado=8 y triangulo=9
+	if(predictions.get(0).score>5){ //si la puntuacion de reconocimiento es mayor a 5, entonces se ha reconocido una figura.
+		switch(predictions.get(0).name.length()){ //miramos la longitud de los caracteres de la figura: circulo=7, cuadrado=8 y triangulo=9
 			case 7:
 				
 				Toast toast1 =Toast.makeText(getApplicationContext(),"Circulo ", Toast.LENGTH_SHORT);
@@ -391,7 +398,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     protected void onResume() { 
         super.onResume(); 
         sSensorManager.registerListener(this, mAccelerometer, Sensor.TYPE_ACCELEROMETER); 
-       // remotoActivity.handler;
+       
     } 
 
     @Override 
@@ -423,8 +430,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
          
         float aX = event.values[0]; 
         float aY = event.values[1]; 
-        //float aZ = event.values[2];     
-        //this.text6.setText(" "+event.values[2]);
+        
         
         angle = (float) (Math.atan2(aX, aY)/(Math.PI/180));  
         
@@ -446,9 +452,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
         
         old_angulo=angulo;
         
-      //  this.text6.setText(" "+angle);
-		//System.out.println ("El angulo es " + angle);
-		
+      
     }
     
     /**
@@ -461,118 +465,111 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     	
     	//C34N0M0N
     	//Type-Temp1-Temp0-Led-Colision-M/Auto-Velocidad
-    	String type = data.substring(0,1);
-    	String temperature = data.substring(1,3);
-    	String LEDsActive = data.substring(3,4);
-    	int colision = Integer.parseInt(data.substring(4,5));  
-    	String modo = data.substring(5,6);  
-    	int velocidad = Integer.parseInt(data.substring(6,7));
     	
-    	 System.out.println ("DENTRO remoto");
-    	 //System.out.println (temperature);
-    	//Change temperature
+    	String temperature="30";
+    	String LEDsActive = null;
+    	int colision = 0;  
+    	String modo = null;  
+    	int velocidad = 0;
+		try {
+			String type = data.substring(0, 1);
+			temperature = data.substring(1, 3);
+			LEDsActive = data.substring(3, 4);
+			colision = Integer.parseInt(data.substring(4, 5));
+			modo = data.substring(5, 6);
+			velocidad = Integer.parseInt(data.substring(6, 7));
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     	
+    	 
     	
-    	 textTemp.setText(temperature);
-    	
-    	//textAcel = (TextView) findViewById(R.id.text5);
-    	
-    	
-    	//Detecting colision
-    	if (colision==0){
-    		frenodelantero.setBackgroundColor(Color.BLACK);
-    		freno1.setBackgroundColor(Color.BLACK);
-     	    freno2.setBackgroundColor(Color.BLACK);
-    	}else if (colision == 1){
-    		frenodelantero.setBackgroundColor(Color.RED);
-     	    
-    	}else if (colision == 2){
-    		//do sth
-    		freno1.setBackgroundColor(Color.RED);
-     	    
-    		
-    	}else{
-    		//do sth
-    		
-     	    freno2.setBackgroundColor(Color.RED);
-    	}
-    	
-    	if (velocidad==0){
-    		accel1.setBackgroundColor(Color.BLACK);
-    		accel2.setBackgroundColor(Color.BLACK);
-     	    accel3.setBackgroundColor(Color.BLACK);
-     	   textAcel.setText(Integer.toString(velocidad));
-     	    
-    	}else if ((velocidad == 1)){
-    		
-    		accel1.setBackgroundColor(Color.GREEN);
-    		accel2.setBackgroundColor(Color.BLACK);
-     	    accel3.setBackgroundColor(Color.BLACK);
-     	    textAcel.setText("1");
-     	    
-   		
-    	}else if ((velocidad == 2)){
-    		//do sth
-    		accel1.setBackgroundColor(Color.GREEN);
-    		accel2.setBackgroundColor(Color.GREEN);
-    		accel3.setBackgroundColor(Color.BLACK);
-    		
-         	textAcel.setText("2");
-         	    
-       		
-    		
-    	}else if((velocidad == 3)){
-    		//do sth
-    		accel1.setBackgroundColor(Color.GREEN);
-    		accel2.setBackgroundColor(Color.GREEN);
-    		accel3.setBackgroundColor(Color.GREEN);
-         	textAcel.setText("3");
-         	    
-       		
-    	}else if((velocidad == 4)){
-    		//do sth
-    		accel1.setBackgroundColor(Color.RED);
-    		accel2.setBackgroundColor(Color.BLACK);
-    		accel3.setBackgroundColor(Color.BLACK);
-    		textAcel.setText("-1");
-         	    
-       		
-    	}else if((velocidad == 5 )){
-    		//do sth
-    		accel1.setBackgroundColor(Color.RED);
-    		accel2.setBackgroundColor(Color.RED);
-    		accel3.setBackgroundColor(Color.BLACK);
-    		
-         	    	textAcel.setText("-2");
-         	    
-       		
-    	}else if((velocidad == 6)){
-    		//do sth
-    		accel1.setBackgroundColor(Color.RED);
-    		accel2.setBackgroundColor(Color.RED);
-    		accel3.setBackgroundColor(Color.RED);
-    		
-         	textAcel.setText("-3");
-         	    
-       		
-    	}
-    	
-    	
-    	if(LEDsActive.equals("Y")){
-    		Bled.setBackgroundColor(Color.YELLOW);
-    	}else if(LEDsActive.equals("N")){
-    		Bled.setBackgroundColor(Color.WHITE);
-    		
-    	}
-    	if(modo.equals("M")){
-    		
-    		Bmodo.setText("Manual");
-    	}else{
-    		Bmodo.setText("Automatico");
-    	}
-    	
-    	System.out.println(temperature);
-    	System.out.println(modo);
+    	try {
+			textTemp.setText(temperature);
+			//Detecting colision
+			if (colision == 0) {
+				frenodelantero.setBackgroundColor(Color.BLACK);
+				freno1.setBackgroundColor(Color.BLACK);
+				freno2.setBackgroundColor(Color.BLACK);
+			} else if (colision == 1) {
+				frenodelantero.setBackgroundColor(Color.RED);
+
+			} else if (colision == 2) {
+			
+				freno1.setBackgroundColor(Color.RED);
+
+			} else {
+				
+				freno2.setBackgroundColor(Color.RED);
+			}
+			if (velocidad == 0) {
+				accel1.setBackgroundColor(Color.BLACK);
+				accel2.setBackgroundColor(Color.BLACK);
+				accel3.setBackgroundColor(Color.BLACK);
+				textAcel.setText(Integer.toString(velocidad));
+
+			} else if ((velocidad == 1)) {
+
+				accel1.setBackgroundColor(Color.GREEN);
+				accel2.setBackgroundColor(Color.BLACK);
+				accel3.setBackgroundColor(Color.BLACK);
+				textAcel.setText("1");
+
+			} else if ((velocidad == 2)) {
+				
+				accel1.setBackgroundColor(Color.GREEN);
+				accel2.setBackgroundColor(Color.GREEN);
+				accel3.setBackgroundColor(Color.BLACK);
+
+				textAcel.setText("2");
+
+			} else if ((velocidad == 3)) {
+				
+				accel1.setBackgroundColor(Color.GREEN);
+				accel2.setBackgroundColor(Color.GREEN);
+				accel3.setBackgroundColor(Color.GREEN);
+				textAcel.setText("3");
+
+			} else if ((velocidad == 4)) {
+			
+				accel1.setBackgroundColor(Color.RED);
+				accel2.setBackgroundColor(Color.BLACK);
+				accel3.setBackgroundColor(Color.BLACK);
+				textAcel.setText("-1");
+
+			} else if ((velocidad == 5)) {
+				
+				accel1.setBackgroundColor(Color.RED);
+				accel2.setBackgroundColor(Color.RED);
+				accel3.setBackgroundColor(Color.BLACK);
+
+				textAcel.setText("-2");
+
+			} else if ((velocidad == 6)) {
+				
+				accel1.setBackgroundColor(Color.RED);
+				accel2.setBackgroundColor(Color.RED);
+				accel3.setBackgroundColor(Color.RED);
+
+				textAcel.setText("-3");
+
+			}
+			if (LEDsActive.equals("Y")) {
+				Bled.setBackgroundColor(Color.YELLOW);
+			} else if (LEDsActive.equals("N")) {
+				Bled.setBackgroundColor(Color.WHITE);
+
+			}
+			if (modo.equals("M")) {
+
+				Bmodo.setText("Manual");
+			} else {
+				Bmodo.setText("Automatico");
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return false;
     }
 	
@@ -592,7 +589,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			socket.setReuseAddress(true);
 			InetAddress address;
 			address = InetAddress.getByName ("172.20.10.9");
-			//address = InetAddress.getByName ("192.168.43.214");
+			
 			byte[] buf = new byte[256];
 			String stemp;
 					
@@ -614,13 +611,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			//Reset trama Type
 			tramaType='C';
 
-			if(tramaType=='X'){
-				socket.close();
-				 System.out.println ("Closed socket");
-				
-				//volver(null);
-				
-			}
+			
 				
 				
 			//Manual/Auto
@@ -638,12 +629,10 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 			//Reset gesture detected
 			gesturetrigger='N';
 			
-			//System.out.println (stemp);
 			
 			buf = stemp.getBytes ();
 			      
 			
-			//log=stemp;
 			log=" Tx: "+stemp;
 			ModificarRegistro();
     		
@@ -656,9 +645,9 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                   {
                         try
                         {
-                             // System.out.println ("About to send message");
+                             
                               socket.send (packet);
-                              //System.out.println ("Sent message");
+                              
                         }
                         catch (IOException e1)
                         {
@@ -669,7 +658,13 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                   }
 
             }.start ();
-	        
+            
+            if(tramaType=='X'){
+				socket.close();
+				
+				
+				
+			}
             return true;
             
 		}catch (SocketException e) {e.printStackTrace();
@@ -701,14 +696,12 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                 	
                       while (true)
                       {                          
-                            //packet = new DatagramPacket (buf, buf.length);
+                           
                            packet= new DatagramPacket(buf,8);
                     	   socket.receive (packet);
-                            System.out.println ("Received packet");
+                            
                             rxPacket = new String (packet.getData());
-                            
-                            //System.out.println (rxPacket);
-                            
+                          
                           activityTest.runOnUiThread(new Runnable(){
                             	public void run(){
                             		parseRXstring(rxPacket);
@@ -716,20 +709,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                             		ModificarRegistro();
                             		
                             		
-                            	}
-                            
-                            
-                            
-                            
-                           /* 
-                            
-                            handler.post(new Runnable() {
-                                public void run() {
-                                	parseRXstring(rxPacket);
-                                }
-                            });
-                            */		
-                            	//}
+                            	} 
+                         
                             });
                             	 
                             
@@ -752,7 +733,6 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 		    
 		    String hora = formato.format(curDate);
 		    String esp;
-		    //esp=hora+" Tx: ";
 		    esp=hora;
 		    String cab=esp+log;
 		    cab=cab+"                       \n\n";

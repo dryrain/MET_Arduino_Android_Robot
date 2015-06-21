@@ -88,13 +88,9 @@ public class accelActivity extends Activity implements SensorEventListener{
 		Bvolver.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
    
-        	   tramaType="X"; //Kill the arduino process
+        	   	tramaType="X"; //Kill the arduino process
 				sendData();
-        	   
-                // Perform action on click
-            	//Toast toast1 =Toast.makeText(getApplicationContext(),"Id clicleada volver ", Toast.LENGTH_SHORT);
-				//toast1.show();
-        	   volver(null);
+				volver(null);
 				
            }
 
@@ -115,7 +111,7 @@ public class accelActivity extends Activity implements SensorEventListener{
     protected void onResume() { 
         super.onResume(); 
         sSensorManager.registerListener(this, mAccelerometer, Sensor.TYPE_ACCELEROMETER); 
-        //activityTest1.hand;
+       
     } 
 
     @Override 
@@ -130,9 +126,17 @@ public class accelActivity extends Activity implements SensorEventListener{
 	*/
 
 	public void volver(View view) {	   
+		t.interrupt();
+		t=null;
+	
 		Intent intent = new Intent(this, 
         MainActivity.class);
+		
+		log=" Tx: XMODAC";
+		ModificarRegistro(); 
+		
 		startActivity(intent);
+		
 		finish();
 }
 	@Override
@@ -159,52 +163,58 @@ public class accelActivity extends Activity implements SensorEventListener{
 	 private boolean parseRXstring(String data)
 	    {
 	    	
-	    	//C34N0M0N
-	    	//Type-Temp1-Temp0-Led-Colision-M/Auto-Velocidad
-	    	String type = data.substring(0,1);
-	    	String posX = data.substring(1,6);
-	    	String posY = data.substring(7,12);
-	    	String posZ=data.substring(13,18);
-	    	int x = Integer.parseInt(data.substring(2,3));
+	    	String posX = null;
+	    	String posY = null;
+	    	String posZ= null;
 	    	
-	   int y = Integer.parseInt(data.substring(7,8));
-	    int z = Integer.parseInt(data.substring(13,14));
-	    	
-	    	text2.setText(posX);
-	    	text4.setText(posY);
-	    	text6.setText(posZ);
-	    	/*
-	    	if (x<0){
-	    		xpos.setBackgroundColor(Color.BLACK);
-	    		xneg.setBackgroundColor(Color.RED);
-	    	}else if (x > 0){
-	    		xpos.setBackgroundColor(Color.RED);
-	    		xneg.setBackgroundColor(Color.BLACK);
-	    	}
-	    	if (y<0){
-	    		ypos.setBackgroundColor(Color.BLACK);
-	    		yneg.setBackgroundColor(Color.RED);
-	     	    
-	    	}else if (y> 0){
-	    		ypos.setBackgroundColor(Color.RED);
-	    		yneg.setBackgroundColor(Color.BLACK);
-	     	    
-	    	}
-	    	if (z<0){
-	    		zpos.setBackgroundColor(Color.BLACK);
-	    		zneg.setBackgroundColor(Color.RED);
-	     	    
-	    	}else if (z> 0){
-	    		zpos.setBackgroundColor(Color.RED);
-	    		zneg.setBackgroundColor(Color.BLACK);
-	     	    
-	    	}
-	    	
-	    	*/
-	    	
-	    	System.out.println(posX);
-	    	System.out.println(posY);
-	    	System.out.println(posZ);
+				int x = 0;
+				int y = 0;
+				int z = 0;
+				try {
+					//A00.09 1-0.09
+					//Type-SignoX-PosX-Space-SignoY-PosY-Space-SignoZ-PosZ
+					String type = data.substring(0, 1);
+					
+					posX = data.substring(2, 7);
+					posY = data.substring(9, 14);
+					posZ = data.substring(16, 21);
+					
+					x = Integer.parseInt(data.substring(1, 2));
+					y = Integer.parseInt(data.substring(8, 9));
+					z = Integer.parseInt(data.substring(15, 16));
+					text2.setText(posX);
+					text4.setText(posY);
+					text6.setText(posZ);
+					
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				if (x == 1) {
+					xpos.setBackgroundColor(Color.BLACK);
+					xneg.setBackgroundColor(Color.RED);
+				} else if (x == 0) {
+					xpos.setBackgroundColor(Color.RED);
+					xneg.setBackgroundColor(Color.BLACK);
+				}
+				if (y == 0) {
+					ypos.setBackgroundColor(Color.BLACK);
+					yneg.setBackgroundColor(Color.RED);
+
+				} else if (y == 0) {
+					ypos.setBackgroundColor(Color.RED);
+					yneg.setBackgroundColor(Color.BLACK);
+
+				}
+				if (z == 0) {
+					zpos.setBackgroundColor(Color.BLACK);
+					zneg.setBackgroundColor(Color.RED);
+
+				} else if (z == 0) {
+					zpos.setBackgroundColor(Color.RED);
+					zneg.setBackgroundColor(Color.BLACK);
+
+				}
+			
 			return false;
 	    }	
 
@@ -220,19 +230,16 @@ public class accelActivity extends Activity implements SensorEventListener{
 			final DatagramSocket socket = new DatagramSocket ();
 			socket.setReuseAddress(true);
 			InetAddress address;
-			//address = InetAddress.getByName ("172.20.10.9");
-			address = InetAddress.getByName ("192.168.43.214");
+			address = InetAddress.getByName ("172.20.10.9");
+			
 			
 			byte[] buf = new byte[256];
-	        //String s = "A2553MY"; //TESTING
-	       // buf = s.getBytes ();
-	        
-	     
+	      
 			String stemp;
 			stemp=tramaType;
 		
 			
-			System.out.println (stemp);
+			
 			buf = stemp.getBytes ();
 			log=" Tx: "+stemp;
 			ModificarRegistro();
@@ -247,9 +254,9 @@ public class accelActivity extends Activity implements SensorEventListener{
                   {
                         try
                         {
-                             // System.out.println ("About to send message");
+                             
                               socket.send (packet);
-                              //System.out.println ("Sent message");
+                              
                         }
                         catch (IOException e1)
                         {
@@ -286,41 +293,28 @@ public class accelActivity extends Activity implements SensorEventListener{
           {
                 DatagramSocket socket;
                 DatagramPacket packet;
-                byte[] buf = new byte[256];
+                byte[] buf = new byte[22];
                 System.out.println ("Thread running");
                 try
                 {
-                      socket = new DatagramSocket (4560);
+                      socket = new DatagramSocket (4562);
                       socket.setReuseAddress(true);
-                	  //socket = new DatagramSocket (55056);
+                	 
                       while (true)
                       {                          
 
-                            packet = new DatagramPacket (buf, buf.length);
-                            socket.receive (packet);
-                            System.out.println ("Received packet");
-                            String s = new String (packet.getData());
-                            //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();// Context contexto = this;
-
-                            //packet = new DatagramPacket (buf, buf.length);
-                           packet= new DatagramPacket(buf,20);
+                            
+                           packet= new DatagramPacket(buf,22);
                     	  socket.receive (packet);
-                            System.out.println ("Received packet");
                             rxPacket = new String (packet.getData());
-                            //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-                            //System.out.println (rxPacket);
-                          activityTest1.runOnUiThread(new Runnable(){
+                            activityTest1.runOnUiThread(new Runnable(){
                             	public void run(){
-                            		//parseRXstring(rxPacket);
+                            		parseRXstring(rxPacket);
                             		log=" Rx: "+rxPacket;
                             		ModificarRegistro();
                             	}
                             });
-                           /* hand.post(new Runnable() {
-                                public void run() {
-                                	parseRXstring(rxPacket);
-                                }
-                            });*/
+                          
                             
 
                       }
@@ -361,7 +355,7 @@ public class accelActivity extends Activity implements SensorEventListener{
 		    //esp=hora+" Tx: ";
 		    esp=hora;
 		    String cab=esp+log;
-		    cab=cab+"                       \n\n";
+		    cab=cab+"                             \n\n";
 		    
 		    
 		    fout.write(cab+"\n");
