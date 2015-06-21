@@ -28,13 +28,24 @@ import android.widget.Toast;
 
 /**
 *Mostrara las tramas que son enviadas y recibidas en la comunicacion entre nuestro robot y el 
-*telefono. Indicando el tipo de trama y la fecha de envio o recepcion de la misma.
+*telefono. Indicando el tipo de trama y la fecha de envio o recepcion de la misma.Extiende de activity
 */
 
 
 public class logActivity extends Activity{
 	TextView tv ;
 	String log;
+	
+	
+	
+	/**
+	*La funcion onCreate sera la encargada de inicializar la activity con el layout que deseamos en este caso
+	*el layout log que se ha dise–ado especificamente para esta activity. Sera la encargada de inicializar
+	*el textView y ejecutar la funcion LeerRegistro que no permitira visualizar el log.
+	*@see LeerRegistro();
+	*/
+	
+	
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.log);
@@ -50,22 +61,7 @@ public class logActivity extends Activity{
        }
 
     });
-	/*
-	try {
-        Process process = Runtime.getRuntime().exec("logcat -d");
-        BufferedReader bufferedReader = new BufferedReader(
-        new InputStreamReader(process.getInputStream()));
-
-        StringBuilder log=new StringBuilder();
-        String line = ""; 
-        
-        while ((line = bufferedReader.readLine()) != null) {
-          log.append(line+"\n");
-        }   
-        TextView tv = (TextView)findViewById(R.id.text);
-        tv.setText(log.toString());
-      } catch (IOException e) {
-    }*/
+	
 	
 	tv= (TextView)findViewById(R.id.text);
 	LeerRegistro();
@@ -79,11 +75,14 @@ public class logActivity extends Activity{
 		return null;
 	}
 
+	
 	/**
 	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
-	*se encuentra la pantalla de seleccion de modo.
+	*se encuentra la pantalla de seleccion de modo.Se encargara de interrumpir los threads activos 
+	*y ademas de escribir la en el log de comunicacion que se va a salir de la activity
+	*@param View view La vista actual
+	*@see ModificarRegistro()
 	*/
-	
 
 	public void volver(View view) {
 		   
@@ -99,7 +98,8 @@ finish();
 	/**
 	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
 	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
-	*el 4560
+	*el 4563.Implementa Runnable
+    *@throws IOException e Si no puede crear el socket de recepcion
 	*/  
 	
 	class SocketListener implements Runnable
@@ -114,7 +114,7 @@ finish();
                 try
                 {
                      
-                	  socket = new DatagramSocket (55056);
+                	  socket = new DatagramSocket (4563);
                       while (true)
                       {                          
                             packet = new DatagramPacket (buf, buf.length);
@@ -130,7 +130,15 @@ finish();
                 }
           }
     }
-	
+	 /**
+	    *La funcion onKeyDown nos permite capturar la accion de tocar el boton volver de android, configurando las 
+	    *acciones que deseamos que lleve a cabo. En nuestro caso queriamos volver a la activity anterior y ademas que
+	    *destruya la activity que se esta ejecutando y mandar una trama con sendData() para informar al robot que hemos
+	    *salido de esta activity
+	    *@see sendData() volver()
+	    *@param keyCode es el codigo de la tecla que pulsamos
+	    *@param  KeyEvent event sera el evento de pulsar una tecla con el dedo
+	    */ 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
@@ -144,6 +152,14 @@ finish();
 		
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	/**
+	*La funcion ModificarRegistro sera la encargada de a–adir en un fichero de texto para tramas
+	*recibidas y enviadas entre Android y Arduino para que posteriormente puedan ser visualizadas 
+	*en la activity de Log de comunicaciones
+	*@throws Exception ex Si no puede crear el archivo de texto en el caso de que no exista o en  el caso 
+	*de que exista que no se pueda sobreecribir
+	*/
 	
 	 public boolean ModficarRegistro(){
 			try
@@ -171,6 +187,14 @@ finish();
 			
 			
 		}
+	 
+	 /**
+		*La funcion LeerRegistro sera la encargada de visualizar por pantalla el fichero de texto que
+		*con anteriodad habiamos creado para almacenar las tramas recibidas y enviadas entre Android y Arduino
+		*@throws Exception ex Si no se puede leer el fichero
+		*@throws Exception e Si no se puede abrir el fichero y almacenar en un stream para poder posteriormente leerlo
+		*/
+	 
 		public boolean LeerRegistro(){
 		try
 		{

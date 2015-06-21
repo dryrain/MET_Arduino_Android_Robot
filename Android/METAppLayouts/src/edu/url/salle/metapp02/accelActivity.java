@@ -43,27 +43,27 @@ import android.widget.Toast;
 *ademas nos dara una idea de como se encuentra posicionado el mismo mediante una serie de indicadores luminosos.
 
 */
-public class accelActivity extends Activity implements SensorEventListener{
-	int x,y,z;
-	String tramaType = "A";
-	String log;
-	private SensorManager sSensorManager; 
-	private Sensor mAccelerometer;
-	public float angle = 0;
-	  private static TextView text2,text4,text6;
-
-	  private static ImageView xpos,xneg,ypos,yneg,zpos,zneg;
-	  String rxPacket;
-	  Activity activityTest1;
-    Thread t;
-    Handler hand = new Handler();
+//public class accelActivity extends Activity implements SensorEventListener{
+	public class accelActivity extends Activity {
+	 int x,y,z;
+	 String tramaType = "A";
+	 String log;
+	//private SensorManager sSensorManager; 
+	//private Sensor mAccelerometer;
+	 public float angle = 0;
+	 private static TextView text2,text4,text6;
+	 private static ImageView xpos,xneg,ypos,yneg,zpos,zneg;
+	 String rxPacket;
+	 Activity activityTest1;
+     Thread t;
+     Handler hand = new Handler();
 	
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.accel);
-        sSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
-        mAccelerometer = sSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+      //  sSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
+      //  mAccelerometer = sSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         
         x=1;
         y=0;
@@ -106,7 +106,7 @@ public class accelActivity extends Activity implements SensorEventListener{
 }
 	
 
-
+/*
 	@Override 
     protected void onResume() { 
         super.onResume(); 
@@ -119,12 +119,14 @@ public class accelActivity extends Activity implements SensorEventListener{
         super.onPause(); 
         sSensorManager.unregisterListener(this, mAccelerometer); 
     } 
-    
+    */
     /**
 	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
-	*se encuentra la pantalla de seleccion de modo.
+	*se encuentra la pantalla de seleccion de modo.Se encargara de interrumpir los threads activos 
+	*y ademas de escribir la en el log de comunicacion que se va a salir de la activity
+	*@param View view La vista actual
+	*@see ModificarRegistro()
 	*/
-
 	public void volver(View view) {	   
 		t.interrupt();
 		t=null;
@@ -139,6 +141,16 @@ public class accelActivity extends Activity implements SensorEventListener{
 		
 		finish();
 }
+	
+	/**
+	    *La funcion onKeyDown nos permite capturar la accion de tocar el boton volver de android, configurando las 
+	    *acciones que deseamos que lleve a cabo. En nuestro caso queriamos volver a la activity anterior y ademas que
+	    *destruya la activity que se esta ejecutando y mandar una trama con sendData() para informar al robot que hemos
+	    *salido de esta activity
+	    *@see sendData() volver()
+	    *@param keyCode es el codigo de la tecla que pulsamos
+	    *@param  KeyEvent event sera el evento de pulsar una tecla con el dedo
+	    */ 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
@@ -224,6 +236,10 @@ public class accelActivity extends Activity implements SensorEventListener{
  	*desde el sistema Android al robot arduino.Ademas realizara el parseado de la
  	*informacion en un formato que sea entendido por nuestro robot.Para poder realizar 
  	*el envio se debera crea un thread. Se utilizara como puerto emisor 55056
+ 	*@see ModificarRegistro()
+	    *@throws IOException e  Si el socket no se puede crear el socket o no se puede enviar la trama
+	    *@throws UnknownHostException e Si el socket no se puede crear el socket
+	    *@throws SocketException e  Si el socket no se puede crear el socket
  	*/
 	public boolean sendData(){
 		try {
@@ -278,12 +294,13 @@ public class accelActivity extends Activity implements SensorEventListener{
 	}
 	
 	
+	
 	/**
 	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
 	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
-	*el 4560
-	*/  
-	
+	*el 4562.Implementa Runnable
+    *@throws IOException e Si no puede crear el socket de recepcion
+	*/ 
 	
 	
 	class SocketListener implements Runnable
@@ -325,21 +342,27 @@ public class accelActivity extends Activity implements SensorEventListener{
                 }
           }
     }
-
-
+/*
+	
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
 		
 	}
-
-
+*/
+	/**
+	*La funcion ModificarRegistro sera la encargada de a–adir en un fichero de texto para tramas
+	*recibidas y enviadas entre Android y Arduino para que posteriormente puedan ser visualizadas 
+	*en la activity de Log de comunicaciones
+	*@throws Exception ex Si no puede crear el archivo de texto en el caso de que no exista o en  el caso 
+	*de que exista que no se pueda sobreecribir
+	*/
 
 	public boolean ModificarRegistro(){
 		try

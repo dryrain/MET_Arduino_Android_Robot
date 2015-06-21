@@ -51,7 +51,9 @@ import android.hardware.SensorManager;
 *La clase remotoActivity nos permite controlar remotamente nuestro robot, permitiendo elegir a que
 *velocidad, direccion, sentido queremos que se mueva taambien nos permitira elegir entre 2 modos de 
 *funcionamiento: el automatico y el manual. Ademas nos aportara informacion sobre el mismo
-*como puede ser la temperatura, si tiene un obstaculo proximo,etc.
+*como puede ser la temperatura, si tiene un obstaculo proximo,etc. Dicha clase extiende de Activity
+*y tambien implementa OnGesturePerfomed para detectar gestos tactiles y SensorEventListener que 
+*detectara cuando el acelerometro del telefono movil cambia de posicion
 
 
 */
@@ -93,6 +95,11 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	Handler handler = new Handler();
 	Thread t;
     
+	/**
+	*La funcion onCreate sera la encargada de inicializar la activity con el layout que deseamos en este caso
+	*el layout cremoto que se ha dise–ado especificamente para esta activity.Sera ademas la encargada de inicializar
+	*el thread de envio y captura de datos, y de captar eventos de los UI elementos.
+	*/
 	
 	protected void onCreate(Bundle savedInstanceState) {
 	
@@ -195,7 +202,8 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
             	   freno1.setBackgroundColor(Color.RED);
             	   
             	   freno2.setBackgroundColor(Color.RED);
-            	   frenar();
+            	  frenar();
+            	  // arrancar();
                    return true;
                }
 
@@ -204,6 +212,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
             	   freno1.setBackgroundColor(0xFFFFFFF);
             	   freno2.setBackgroundColor(0xFFFFFFF);
             	   arrancar();
+            	  //frenar();
                    return true;
                }
 
@@ -232,6 +241,7 @@ public class remotoActivity extends Activity implements OnGesturePerformedListen
 	/**
 	*La funcion frenar permitira parar nuestro robot.Utilizara la funcion 
 *sendData para informar al robot de nuestra orden.
+*@see sendData()
 	*/
 
 public void frenar() {
@@ -240,7 +250,11 @@ public void frenar() {
 	velocidad=0;
 	sendData();
 }
-
+/**
+*La funcion arrancar podra de nuevo en movimiento nuestro robot a la velocidad que marchaba una vez
+*antes de ser parado.Utilizara la funcion sendData para informar al robot de nuestra orden.
+*@see sendData()
+*/
 
 public void arrancar() {
 	
@@ -252,6 +266,7 @@ public void arrancar() {
 /**
 *La funcion luces permitira enceder las luces de nuestro robot.Utilizara la funcion 
 *sendData para informar al robot de nuestra orden.
+*@see sendData()
 */
 
 public void luces() {
@@ -266,8 +281,10 @@ public void luces() {
 	
 /**
 *La funcion marchas permitira elegir la marcha a la que deseamos que nuestro robot se
-*mueva. Hemos definido tres marchas positivas y tres negativas.Utilizara la funcion 
-*sendData para informar al robot de nuestra orden.
+*mueva. Hemos definido tres marchas positivas y tres negativas.Ademas mostrar la marcha a la
+*que vamos graficamente en el layout. Utilizara la funcion sendData para informar al robot de 
+*nuestra orden.
+*@see sendData()
 */
 public void marchas() {		   
 	if(velocidad>=-3 && velocidad<=3 ){
@@ -288,6 +305,7 @@ public void marchas() {
 *La funcion modo permite seleccionar que el robot funcione en modo manual (pudiendo elegir sentido 
 *y velocidad) o en modo automatico.Utilizara la funcion sendData para informar al robot de nuestra 
 *orden.
+*@see sendData()
 */
 
 	public void modo() {
@@ -305,7 +323,10 @@ public void marchas() {
 	
 	/**
 	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
-	*se encuentra la pantalla de seleccion de modo.
+	*se encuentra la pantalla de seleccion de modo.Se encargara de interrumpir los threads activos 
+	*y ademas de escribir la en el log de comunicacion que se va a salir de la activity
+	*@param View view La vista actual
+	*@see ModificarRegistro()
 	*/
 	
 	public void volver(View view) {  
@@ -329,8 +350,12 @@ public void marchas() {
 
 	/**
 	*La funcion onGesturePerformed sera la encargada de la deteccion del gesto tactil de una
-	*serie de figura geometricas que el robot puede realizar. Una vez detectado uno de estos
-	*gestos ejecutara la funcion sendData para que el robot lleve a cabo dicho movimiento.
+	*serie de figura geometricas que el robot puede realizar.Cuando se realiza un gesto mostrara
+	*un toast diciendo si ha encontrado la figura y si por el contrario no se reconoce.
+	*Una vez detectado uno de estos gestos ejecutara la funcion sendData para que el robot lleve a cabo dicho movimiento.
+	*@see sendData()
+	*@param GestureOverlayView ov que es la zona de deteccion que hemos activado en nuestro layout
+	*@param  Gesture gesture que sera el gesto tactil que realizamos con el dedo
 	*/
 	
 @Override
@@ -366,6 +391,16 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 	sendData();
 }		
 	
+
+/**
+*La funcion onKeyDown detecta cuando el usuario presiona una tecla en este caso el boton de atras
+*y una vez detectado el boton ejecutara la funcion volver() para volver al menu principal y mandara 
+*la trama con sendData()para informar al robot que hemos salido de esta activity
+*@see sendData() volver()
+*@param keyCode es el codigo de la tecla que pulsamos
+*@param  KeyEvent event sera el evento de pulsar una tecla con el dedo
+*/
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
@@ -381,7 +416,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 		return super.onKeyDown(keyCode, event);
 	}
 
-
+/*
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
@@ -393,6 +428,7 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	*/
 	
 	@Override 
     protected void onResume() { 
@@ -408,7 +444,13 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
         
     
     } 
-
+    /**
+	*El metodo onAccuracyChanged sera llamado cuando el precision o nivel de exactitud de un
+	*sensor ha cambiado
+	*llevar a cabo.
+	*@param SensorEvent event es el evento que cambia.
+	*@param int accuray valor o nivel de exactitud del sensor.
+	*/
     public void onAccuracyChanged(Sensor sensor, int accuracy) { 
         // TODO Auto-generated method stub 
          
@@ -417,9 +459,12 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
     /**
 	*La funcion onSensorChanged actualizara el valor 3 variables en nuestro caso ax,ay,az 
 	*en funcion de los valores obtenidos por el acelerometro y en base a estos se determinara
-	*un angulo de giro que sera enviado al robot mediante la funcion sendData. Hemos de comentar
-	*que considerado 6 angulos de giro 3 a la izauierda y otros 3 a la derecha que el robot podra
+	*un angulo de giro que sera enviado al robot mediante la funcion sendData. Esta funcion se ejecuta
+	*cuando un el valor de un sensor cambia. Hemos de comentar que considerado 6 angulos de giro 3 a la izauierda 
+	*y otros 3 a la derecha que el robot podra
 	*llevar a cabo.
+	*@see sendData()
+	*@param SensorEvent event es el evento que cambia.
 	*/
     
     
@@ -459,6 +504,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
    	*La clase parseRXstring es la encargada de traducir la trama recibida por parte 
    	*del sistema arduino y actualizar el estado de nuestros elementos UI como el TextView
    	*de la temperatura, los imageView de deteccion o presencia de obstaculos,etc
+   	*@param String data: es el string de datos que recibimos por parte de Arduino
+   	*@throws Exception e Si ese parsea mal algun dato de la trama recibida por parte de arduino
    	*/
     private boolean parseRXstring(String data)
     {
@@ -579,6 +626,10 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 	*desde el sistema Android al robot arduino.Ademas realizara el parseado de la
 	*informacion en un formato que sea entendido por nuestro robot.Para poder realizar 
 	*el envio se debera crea un thread. Se utilizara como puerto emisor 55056
+	*@see ModificarRegistro()
+	*@throws IOException e  Si el socket no se puede crear el socket o no se puede enviar la trama
+	*@throws UnknownHostException e Si el socket no se puede crear el socket
+	*@throws SocketException e  Si el socket no se puede crear el socket
 	*/
     
     
@@ -677,7 +728,8 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
 	/**
 	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
 	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
-	*el 4560
+	*el 4560. Implementa Runnable
+	*@throws IOException e Si no puede crear el socket de recepcion
 	*/
 	
 	class SocketListener implements Runnable
@@ -722,6 +774,16 @@ public void onGesturePerformed(GestureOverlayView ov, Gesture gesture) {
                 }
           }
     }
+	
+	
+	/**
+	*La funcion ModificarRegistro sera la encargada de a–adir en un fichero de texto para tramas
+	*recibidas y enviadas entre Android y Arduino para que posteriormente puedan ser visualizadas 
+	*en la activity de Log de comunicaciones
+	*@throws Exception ex Si no puede crear el archivo de texto en el caso de que no exista o en  el caso 
+	*de que exista que no se pueda sobreecribir
+	*/
+	
 	public boolean ModificarRegistro(){
 		try
 		{

@@ -149,6 +149,7 @@ String cab;
 	/**
 	 *La funcion pasarremoto ejecutara un intent que nos permitira acceder al modo de funcionamiento
 	 *de control remoto.
+	 *@param View view La vista actual
 	 */	
 	public void pasarremoto(View view) {
 
@@ -162,6 +163,7 @@ String cab;
 	/**
 	 *La funcion pasaraccel ejecutara un intent que nos permitira acceder al modo de funcionamiento
 	 *del reto del acelerometro.
+	 **@param View view La vista actual
 	 */
 	public void pasaraccel(View view) {
 
@@ -180,6 +182,7 @@ String cab;
 	/**
 	 *La funcion pasarlog ejecutara un intent que nos permitira acceder al modo de funcionamiento
 	 *de log de comunicacion.
+	 **@param View view La vista actual
 	 */
 
 
@@ -194,6 +197,7 @@ String cab;
 	/**
 	 *La funcion pasarlaberinto ejecutara un intent que nos permitira acceder al modo de funcionamiento
 	 *de laberinto.
+	 *@param View view La vista actual
 	 */
 	public void pasarlaberinto(View view) {
 
@@ -204,9 +208,13 @@ String cab;
 
 	}	
 
-/**
- * 
- */
+	/**
+	*La funcion CrearRegistro sera la encargada de crear fichero de texto que almacenara las tramas
+	*recibidas y enviadas entre Android y Arduino para que posteriormente puedan ser visualizadas 
+	*en la activity de Log de comunicaciones
+	*@throws Exception ex Si no puede crear el archivo de texto en el caso de que no exista o en  el caso 
+	*de que exista que no se pueda sobreecribir
+	*/
 public boolean CrearRegistro(){
 	try
 	{

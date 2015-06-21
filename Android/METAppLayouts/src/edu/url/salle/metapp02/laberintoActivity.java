@@ -27,7 +27,9 @@ import android.widget.Toast;
 /**
 *Esta clase es la encargada de mostrar el camino que sigue nuestro robot para resolver 
 *el laberinto, ademas tambien mostrara los lugares no explorados y los caminos no validos
-*con ayuda de un conjunto de imageView.
+*con ayuda de un conjunto de imageView.Aqui se declaran todos las variables que controlaran
+*los elementos UI del layout.
+*Esta clase extiende de Activity
 
 */
 public class laberintoActivity extends Activity{
@@ -63,7 +65,12 @@ public class laberintoActivity extends Activity{
 	 String rxPacket;
 	 
 	static int [][]matriz= new int[9][9];
-	 
+	/**
+	*La funcion onCreate sera la encargada de inicializar la activity con el layout que deseamos en este caso
+	*el layout laberinto que se ha dise–ado especificamente para esta activity.Sera ademas la encargada de inicializar
+	*el thread de envio y captura de datos, y de captar eventos de los UI elementos.
+	*/
+	
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.laberinto);
@@ -289,6 +296,8 @@ public class laberintoActivity extends Activity{
 
         });
     	
+    	
+    	
     	play = (ImageButton) findViewById(R.id.button6);
     	play.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
@@ -363,9 +372,13 @@ public class laberintoActivity extends Activity{
 	
 	
 	
+
 	/**
 	*La funcion volver ejecutara un intent que nos permitira volver al main principal en cual 
-	*se encuentra la pantalla de seleccion de modo.
+	*se encuentra la pantalla de seleccion de modo.Se encargara de interrumpir los threads activos 
+	*y ademas de escribir la en el log de comunicacion que se va a salir de la activity
+	*@param View view La vista actual
+	*@see ModificarRegistro()
 	*/
 	
     	public void volver(View view) {
@@ -388,7 +401,11 @@ public class laberintoActivity extends Activity{
     /**
     *La funcion onKeyDown nos permite capturar la accion de tocar el boton volver de android, configurando las 
     *acciones que deseamos que lleve a cabo. En nuestro caso queriamos volver a la activity anterior y ademas que
-    *destruya la actvity que se esta ejecutando.
+    *destruya la activity que se esta ejecutando y mandar una trama con sendData() para informar al robot que hemos
+    *salido de esta activity
+    *@see sendData() volver()
+    *@param keyCode es el codigo de la tecla que pulsamos
+    *@param  KeyEvent event sera el evento de pulsar una tecla con el dedo
     */ 	
     	
     	
@@ -407,7 +424,12 @@ public class laberintoActivity extends Activity{
     		return super.onKeyDown(keyCode, event);
     	}   
     	
-    	
+    	/**
+    	    *La funcion pintar() sera la encargada de pintar todos los elementos de la matriz de visualizacion que
+    	    *hemos definido, para ello evaluara el valor del array bidimensional matriz el cuando contiene los datos
+    	    *recibidos por el robot.
+    	    *@see sendData()
+    	    */ 	
     	
     	
     	
@@ -437,7 +459,13 @@ public class laberintoActivity extends Activity{
          		}
 
     }  
-    	
+    	/**
+ 	    *La funcion pintarsolucion() sera la encargada de pintar solo los elementos de la matriz de visualizacion que
+ 	    *hemos definido que forme parte de la solucion del laberinto, para ello evaluara el valor del array bidimensional 
+ 	    *matriz el cuando contiene los datos recibidos por el robot.
+ 	    *@see sendData()
+ 	    */ 	
+ 	
 
     	public void pintarsolucion() {
  		   
@@ -455,7 +483,12 @@ public class laberintoActivity extends Activity{
     			
 
     }  
-    	
+    	/**
+  	    *La funcion pintarrecorrido() sera la encargada de pintar los elementos de la matriz por los que el robot 
+  	    *ha pasado, para ello evaluara el valor del array bidimensional matriz el cuando contiene los datos recibidos 
+  	    *por el robot.
+  	    *@see sendData()
+  	    */ 	
     	public void pintarrecorrido() {
   		   
     		for(int i = 0; i < 9; i++) {
@@ -471,7 +504,12 @@ public class laberintoActivity extends Activity{
  			
 
     		}
-    	
+    	/**
+   	    *La funcion pintarrecorrido() sera la encargada de pintar los elementos de la matriz de visulaizacion
+   	    *que no formara para del camino para la resolucion del laberinto, para ello evaluara el valor del array 
+   	    *bidimensional matriz el cuando contiene los datos recibidos por el robot.
+   	    *@see sendData()
+   	    */ 
     	public void pintardescartados() {
 	   
     		for(int i = 0; i < 9; i++) {
@@ -487,7 +525,12 @@ public class laberintoActivity extends Activity{
 		
 
     		} 
-    
+    	/**
+    	    *La funcion resetMatriz() sera la encargada de poner a cero todos los elemrntos de la matriz
+    	    *de visualizacion, para ello evaluara el valor del array bidimensional matriz el cuando contiene 
+    	    *los datos recibidos por el robot.
+    	    *@see sendData()
+    	    */
     	public void resetMatriz() {
     		   
     	    		for(int i = 0; i < 9; i++) {
@@ -509,7 +552,7 @@ public class laberintoActivity extends Activity{
        	*que nos muestran el camino que esta siguiendo nuestro robot para resolver el laberinto al
        	*que se enfrenta.
        	*@param String data: Es la trama recibida del sistema arduino
-       	*@return Retorna False por defecto independientemente de las acciones que realice.
+       	*@throws Exception e Si ese parsea mal algun dato de la trama recibida por parte de arduino
        	*/
     	private boolean parseRXstring(String data)
         {
@@ -590,6 +633,10 @@ public class laberintoActivity extends Activity{
     	*desde el sistema Android al robot arduino.Ademas realizara el parseado de la
     	*informacion en un formato que sea entendido por nuestro robot.Para poder realizar 
     	*el envio se debera crea un thread. Se utilizara como puerto emisor 55056
+    	*@see ModificarRegistro()
+	    *@throws IOException e  Si el socket no se puede crear el socket o no se puede enviar la trama
+	    *@throws UnknownHostException e Si el socket no se puede crear el socket
+	    *@throws SocketException e  Si el socket no se puede crear el socket
     	*/
     	
     	public boolean sendData(){
@@ -646,7 +693,8 @@ public class laberintoActivity extends Activity{
     	/**
     	*La clase SocketListener establece un socket de recepcion para poder recibir las tramas
     	*procedentes del robot arduino en el sistema Android. Se utilizara como puerto receptor 
-    	*el 4560
+    	*el 4561.Implementa Runnable
+	    *@throws IOException e Si no puede crear el socket de recepcion
     	*/  	
     	class SocketListener implements Runnable
         {
@@ -688,7 +736,14 @@ public class laberintoActivity extends Activity{
                     }
               }
         }
-       
+    	
+    	/**
+    	*La funcion ModificarRegistro sera la encargada de a–adir en un fichero de texto para tramas
+    	*recibidas y enviadas entre Android y Arduino para que posteriormente puedan ser visualizadas 
+    	*en la activity de Log de comunicaciones
+    	*@throws Exception ex Si no puede crear el archivo de texto en el caso de que no exista o en  el caso 
+    	*de que exista que no se pueda sobreecribir
+    	*/
     	
     	
     	
