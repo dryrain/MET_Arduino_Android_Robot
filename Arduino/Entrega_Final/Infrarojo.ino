@@ -16,7 +16,7 @@ const int EMITTER_PIN   = 2;
 // Inicializacion de los sensores, utilizando el tipo QTRSensorsRC.
 QTRSensorsRC qtrrc((unsigned char[]) {PIN_SENSOR_1, PIN_SENSOR_2, PIN_SENSOR_3, PIN_SENSOR_4, PIN_SENSOR_5, PIN_SENSOR_6},
   NUM_SENSORS, TIMEOUT, EMITTER_PIN); 
-  
+ unsigned int *sensorValuesinfra; 
   //Tabla de enteros donde se guarda los valores recogidos por los sensores.
 
 void ini_port_infrarojo(void){
@@ -30,9 +30,10 @@ void ini_port_infrarojo(void){
   pinMode(EMITTER_PIN, OUTPUT);
 }
 
-void Lee_Infrarojos(void){
+void Lee_Infrarojos(unsigned int *sensorinfrarojos){
 // Funcion para leer los datos recibidos por los sensores de infrarojos.
-  qtrrc.read(sensorValues);  
+  qtrrc.read(sensorinfrarojos); 
+  sensorValuesinfra=sensorinfrarojos;
 }
 
 void Escribe_deteccion_negro(void){
@@ -53,7 +54,7 @@ void Escribe_deteccion_negro(void){
 
  for (unsigned char i = 0; i < NUM_SENSORS; i++)
   {
-    Serial.print(sensorValues[i]);
+    Serial.print(sensorValuesinfra[i]);
     Serial.print('\t'); // tab to format the raw data into columns in the Serial monitor
   }
   Serial.println();

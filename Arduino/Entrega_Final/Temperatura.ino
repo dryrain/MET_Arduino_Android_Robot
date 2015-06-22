@@ -29,10 +29,3 @@ float Lee_temperatura(void){
 	return temp;                             // Devuelve el valor de temperatura recogido por el sensor.
 }
 
-void Escribe_temp(float temperatura){
-// Imprime valores por el puerto serie la temperatura recogida en el ambiente.
-// Entrada: (float). Se introduce el valor leido del sensor de temperatura para visualizarlo por consola. 
-     Serial.println("Temperatura de ");
-     Serial.println(temperatura);     
-     Serial.println("ºC");
-}

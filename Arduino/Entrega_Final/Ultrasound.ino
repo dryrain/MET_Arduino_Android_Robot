@@ -23,20 +23,10 @@ long Lee_ultrasonidos (void){
   return distancia;             // Devuelve la distancia detectada al objeto mas proximo.
 }
 
-void Escribe_distancia(long distancia){  
-// Imprime valores por el puerto serie de la distancia recogida por el sensor de utlrasonidos.
-// Entrada: (long). Se introduce el valor leido del sensor de ultrasonidos para visualizarlo por consola. 
-  Serial.print("Distancia: "); 
-  Serial.print(distancia); 
-  Serial.print("cm");
-  Serial.println();   
-}
-
-
 bool detectaCentro(){
   //Movemos el servo al centro
-  //moverServo(HEAD,90);
-  //delay(1000);
+  moverServo(HEAD,90);
+  delay(1000);
   //Lectura de la distancia
   long distancia = Lee_ultrasonidos();
   if (distancia<20) return true;
@@ -45,8 +35,8 @@ bool detectaCentro(){
 
 bool detectaDerecha(){
   //Movemos el servo al centro
-  //moverServo(HEAD,0);
-  //delay(1000);
+  moverServo(HEAD,0);
+  delay(1000);
   
   //Lectura de la distancia
   long distancia = Lee_ultrasonidos();
@@ -56,8 +46,8 @@ bool detectaDerecha(){
 
 bool detectaIzquierda(){
   //Movemos el servo al centro
-  //moverServo(HEAD,180);
-  //delay(1000);
+  moverServo(HEAD,180);
+  delay(1000);
   //Lectura de la distancia
   long distancia = Lee_ultrasonidos();
   if (distancia<20) return true;
@@ -65,14 +55,3 @@ bool detectaIzquierda(){
 }
 
 
-bool wait1s(){
-   
- unsigned static long currentMilis = millis();
-  if (millis()-currentMilis>1000){
-    //previousMilis=currentMilis;
-    currentMilis=millis();
-    return true;
-  }else{
-  return false;
-  }
-}

@@ -4,6 +4,7 @@ void drawMainMenu(){
  Serial.println("1 -- Modo automatico");
  Serial.println("2 -- Reto acelerometro");
  Serial.println("3 -- Laberinto");
+ Serial.println("4 -- Solucion Laberinto");
 }
 
 

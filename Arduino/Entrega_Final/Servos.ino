@@ -34,9 +34,10 @@ void ini_port_servo_Head(void){
    servoHead.write(91);
 }
 
-
-
 void moverServo(int nservo, int pos){ 
+//Funcion para mover el motor del servo.
+// entradas: nservo (int). LEFT mueve motor izquierdo y RIGHT mueve motor derecho.
+//           pos (int). velocidad del motor a -90 a +90.
    switch (nservo){
      case LEFT:
          pos=abs(pos-90); //codifica la velocidad de -90 a 90 en 0 a 180º
